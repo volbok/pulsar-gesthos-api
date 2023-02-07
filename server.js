@@ -1763,8 +1763,9 @@ const poolGesthos = new Pool({
 });
 
 // listar atendimentos.
-app.get("/gesthos_pacientes", (req, res) => {
-  console.log(res);
+app.post("/gesthos_pacientes", (req, res) => {
+  const info = req.body;
+  console.log(info);
 });
 
 // ## -x- ## //
