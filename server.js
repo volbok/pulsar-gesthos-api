@@ -1752,3 +1752,23 @@ app.get("/delete_opcoes_prescricao/:id", (req, res) => {
     res.send(results);
   });
 });
+
+// ## INTEGRAÇÃO GESTHOS ## //
+const poolGesthos = new Pool({
+  user: "postgres",
+  host: "containers-us-west-126.railway.app",
+  database: "railway",
+  password: "YNQGtdJikHFARouPGld5",
+  port: 6801,
+});
+
+// listar internações.
+app.get("/gesthos_pacientes", verifyJWT, (req, res) => {
+  var sql = "SELECT * FROM pacientes";
+  poolGesthos.query(sql, (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+    res.send(results);
+  });
+});
+
+// ## -x- ## //
