@@ -1768,7 +1768,7 @@ app.post("/gesthos_pacientes", (req, res) => {
     bola,
     casa
   } = req.body;
-  console.log(usuario);
+  console.log(bola + ' - ' + casa);
 });
 
 // ## -x- ## //
