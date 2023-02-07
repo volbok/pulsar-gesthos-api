@@ -1763,7 +1763,7 @@ const poolGesthos = new Pool({
 });
 
 // listar atendimentos.
-app.get("/gesthos_pacientes", verifyJWT, (req, res) => {
+app.get("/gesthos_pacientes", (req, res) => {
   console.log(res);
 });
 
