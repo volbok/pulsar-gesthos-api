@@ -31,7 +31,7 @@ app.use(
 
 app.get("/", (request, response) => {
   response.json({
-    info: "API Node.js + Express + Postgres API - PULSAR",
+    info: "API Node.js + Express + Postgres API - PULSAR + GESTHOS",
   });
 });
 
@@ -118,7 +118,7 @@ app.post("/checkusuario", (req, res) => {
 function verifyJWT(req, res, next) {
   const token = req.headers.authorization;
   console.log('TOKEN RECEBIDO DO FRONT: ' + req.headers.authorization);
-  if (!token) return res.status(401).json({ auth: false, message: 'NENHUM TOKEN FOI GERADO. HACKER!' });
+  if (!token) return res.status(401).json({ auth: false, message: 'NENHUM TOKEN FOI GERADO. ACESSO NEGADO.' });
 
   jwt.verify(token, process.env.SECRET, function (err, decoded) {
     if (err) return res.status(500).json({ auth: false, message: 'TOKEN PARA VALIDAÇÃO DO ACESSO EXPIRADO.' });
@@ -1762,13 +1762,9 @@ const poolGesthos = new Pool({
   port: 6801,
 });
 
-// listar internações.
+// listar atendimentos.
 app.get("/gesthos_pacientes", verifyJWT, (req, res) => {
-  var sql = "SELECT * FROM pacientes";
-  poolGesthos.query(sql, (error, results) => {
-    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
-    res.send(results);
-  });
+  console.log(res);
 });
 
 // ## -x- ## //
