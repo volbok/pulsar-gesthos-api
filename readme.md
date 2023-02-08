@@ -1,7 +1,7 @@
 <h1>DOCUMENTAÇÃO PARA INTEGRAÇÃO GESTHOS + PULSAR</h1>
 
 <h2>GESTHOS</h2>
-Uma aplicação criada no ambiente GestHos consumirá a endpoint http://localhost:3333/gesthos_pacientes, encaminhando pelo método POST, em intervalos regulares, uma array de JSONs contendo informações referentes aos atendimentos.
+Uma aplicação criada no ambiente GestHos consumirá a endpoint http://pulsar-gesthos-api.up.railway.app/gesthos_pacientes, encaminhando pelo método POST, em intervalos regulares, uma array de JSONs contendo informações referentes aos atendimentos.
 
 **Exemplo da aplicação em JavaScript:**
 
@@ -53,7 +53,7 @@ Uma aplicação criada no ambiente GestHos consumirá a endpoint http://localhos
           }
         ]
       }
-      axios.post('http://localhost:3333/gesthos_pacientes', obj).then(() => {
+      axios.post('http://pulsar-gesthos-api.up.railway.app/gesthos_pacientes', obj).then(() => {
       }).catch((err) => console.log(err));
     }
 
@@ -64,7 +64,7 @@ Uma aplicação criada no ambiente GestHos consumirá a endpoint http://localhos
 OBS.: esta aplicação está disponível para uso, se necessário.
 
 <h2>PULSAR</h2>
-A API criada no ambiente Pulsar (api Pulsar) declara a endpoint http://localhost:3333/gesthos_pacientes. Como explicado acima, quando o robô Gesthos consome esta endpoint, é retornada uma array de JSONs que será armazenada na API pulsar, e posteriormente acessada pelo FrontEnd, pelo método GET, via endpoint http://localhost:3333/pulsar_pacientes.
+A API criada no ambiente Pulsar (api Pulsar) declara a endpoint http://pulsar-gesthos-api.up.railway.app/gesthos_pacientes. Como explicado acima, quando o robô Gesthos consome esta endpoint, é retornada uma array de JSONs que será armazenada na API pulsar, e posteriormente acessada pelo FrontEnd, pelo método GET, via endpoint http://pulsar-gesthos-api.up.railway.app/pulsar_pacientes.
 
 **Fragmento do código da api Pulsar (Web Server) explicitando a integração.**
 
