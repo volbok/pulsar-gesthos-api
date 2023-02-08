@@ -1754,21 +1754,18 @@ app.get("/delete_opcoes_prescricao/:id", (req, res) => {
 });
 
 // ## INTEGRAÇÃO GESTHOS ## //
-const poolGesthos = new Pool({
-  user: "postgres",
-  host: "containers-us-west-126.railway.app",
-  database: "railway",
-  password: "YNQGtdJikHFARouPGld5",
-  port: 6801,
+// recebendo dados dos atendimentos (robô Gesthos >> api Pulsar).
+let atendimentos = [];
+app.post("/gesthos_atendimentos", (req, res) => {
+  atendimentos = req.body;
+  console.log(atendimentos);
 });
 
-// listar atendimentos.
-app.post("/gesthos_pacientes", (req, res) => {
-  const {
-    bola,
-    casa
-  } = req.body;
-  console.log(bola + ' - ' + casa);
+// entregando ao Front Pulsar os dados (api Pulsar >> front Pulsar).
+app.get("/pulsar_atendimentos", (req, res) => {
+  if (atendimentos == []) {
+    console.log('SEM INFORMAÇÕES')
+  } else {
+    res.send(atendimentos);
+  }
 });
-
-// ## -x- ## //
