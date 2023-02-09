@@ -1756,7 +1756,7 @@ app.get("/delete_opcoes_prescricao/:id", (req, res) => {
 let atendimentos = [];
 app.post("/gesthos_atendimentos", (req, res) => {
   if (error) return res.json({ success: false, message: error });
-  atendimentos = req.body;
+  var atendimentos = req.body;
   console.log(atendimentos);
 });
 
