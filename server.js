@@ -1755,6 +1755,7 @@ app.get("/delete_opcoes_prescricao/:id", (req, res) => {
 // recebendo dados dos atendimentos (robô Gesthos >> api Pulsar).
 let atendimentos = [];
 app.post("/gesthos_atendimentos", (req, res) => {
+  if (error) return res.json({ success: false, message: error });
   atendimentos = req.body;
   console.log(atendimentos);
 });
