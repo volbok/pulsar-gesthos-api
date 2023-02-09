@@ -1756,8 +1756,8 @@ app.get("/delete_opcoes_prescricao/:id", (req, res) => {
 let atendimentos = [];
 app.post("/gesthos_atendimentos", (req, res) => {
   if (error) return res.json({ success: false, message: error });
-  var atendimentos = req.body;
-  console.log(atendimentos);
+  atendimentos = req.body;
+  console.log('RESPOSTA' + atendimentos);
 });
 
 // entregando ao Front Pulsar os dados (api Pulsar >> front Pulsar).
