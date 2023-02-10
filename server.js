@@ -12,11 +12,9 @@ const PORT = process.env.PORT || 3333;
 app.use(cors());
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Request-Private-Network", "true");
-  res.header("Access-Control-Allow-Private-Network", "true");
+  res.header("Access-Control-Request-Private-Network");
+  res.header("Access-Control-Allow-Private-Network");
   res.header(
-    "Access-Control-Request-Private-Network",
-    "Access-Control-Allow-Private-Network",
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
   );
@@ -1755,19 +1753,24 @@ app.get("/delete_opcoes_prescricao/:id", (req, res) => {
 
 // ## INTEGRAÇÃO GESTHOS ## //
 // recebendo dados dos atendimentos (robô Gesthos >> api Pulsar).
-let atendimentos = [];
+let atendimentos = null;
 app.post("/gesthos_atendimentos", (req, res) => {
+<<<<<<< HEAD
   if (error) {
     console.log(error);
   } else {
     atendimentos = req.body;
     console.log('RESPOSTA: ' + JSON.stringify(atendimentos));
   }
+=======
+  atendimentos = req.body;
+  console.log('RESPOSTA' + atendimentos);
+>>>>>>> 01f0ac547dd9fceac95131d3b532659f6b1af969
 });
 
 // entregando ao Front Pulsar os dados (api Pulsar >> front Pulsar).
 app.get("/pulsar_atendimentos", (req, res) => {
-  if (atendimentos == []) {
+  if (atendimentos == null) {
     console.log('SEM INFORMAÇÕES')
   } else {
     res.send(atendimentos);
