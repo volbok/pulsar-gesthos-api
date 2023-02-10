@@ -1757,7 +1757,7 @@ let atendimentos = [];
 app.post("/gesthos_atendimentos", (req, res) => {
   atendimentos = req.body;
   console.log('RESPOSTA: ' + JSON.stringify(atendimentos));
-  // throw new Error('ERRO');
+  res.send('OK, PEDRÃO!')
 }
 );
 
