@@ -1778,7 +1778,9 @@ app.post("/gesthos_assistencial", (req, res) => {
 });
 
 app.get("/pulsar_assistencial", (req, res) => {
-  if (error) {
-    res.send('ERRO: ' + error);
+  if (assistencial == []) {
+    res.send('SEM INFORMAÇÕES');
+  } else {
+    res.send(assistencial);
   }
 });
