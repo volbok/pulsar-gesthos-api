@@ -1778,9 +1778,7 @@ app.post("/gesthos_assistencial", (req, res) => {
 });
 
 app.get("/pulsar_assistencial", (req, res) => {
-  try {
-    res.send(res);
-  } catch (error) {
-   res.send('ERRO: ' + error); 
+  if (error) {
+    res.send('ERRO: ' + error);
   }
 });
