@@ -1758,14 +1758,29 @@ app.post("/gesthos_atendimentos", (req, res) => {
   atendimentos = req.body;
   console.log('RESPOSTA: ' + JSON.stringify(atendimentos));
   res.send('SUCESSO');
-}
-);
+});
 
-// entregando ao Front Pulsar os dados (api Pulsar >> front Pulsar).
+// entregando ao Front Pulsar os dados de atendimento (api Pulsar >> front Pulsar).
 app.get("/pulsar_atendimentos", (req, res) => {
   if (atendimentos == []) {
     console.log('SEM INFORMAÇÕES');
   } else {
     res.send(atendimentos);
+  }
+});
+
+// recebendo dados vitais (robô Gesthos >> api Pulsar).
+let assistencial = [];
+app.post("/gesthos_assistencial", (req, res) => {
+  assistencial = req.body;
+  console.log('RESPOSTA: ' + JSON.stringify(assistencial));
+  res.send('SUCESSO');
+});
+
+app.get("/pulsar_assistencial", (req, res) => {
+  try {
+    res.send(res);
+  } catch (error) {
+   res.send('ERRO: ' + error); 
   }
 });
