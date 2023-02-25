@@ -1754,6 +1754,13 @@ app.get("/delete_opcoes_prescricao/:id", (req, res) => {
 // ## INTEGRAÇÃO GESTHOS ## //
 // recebendo dados dos atendimentos (robô Gesthos >> api Pulsar).
 let atendimentos = [];
+app.get("/lista_atendimentos", (req, res) => {
+  var sql = "SELECT * FROM gesthos_atendimento";
+  pool.query(sql, (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+    res.send(results);
+  });
+});
 
 const checkAtendimento = (obj) => {
   // checa se o atendimento já existia no banco de dados.
