@@ -1810,7 +1810,6 @@ let banco = [];
 // recuperando atendimentos no banco Pulsar e entregando ao Front Pulsar os dados de atendimento (api Pulsar >> front Pulsar).
 let arrayinternados = [];
 app.get("/pulsar_atendimentos", (req, res) => {
-  arrayinternados = [];
   var sql = "SELECT * FROM gesthos_atendimento";
   pool.query(sql, (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
