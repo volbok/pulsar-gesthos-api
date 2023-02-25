@@ -1754,19 +1754,70 @@ app.get("/delete_opcoes_prescricao/:id", (req, res) => {
 // ## INTEGRAÇÃO GESTHOS ## //
 // recebendo dados dos atendimentos (robô Gesthos >> api Pulsar).
 let atendimentos = [];
+
+const checkAtendimento = (obj) => {
+  // checa se o atendimento já existia no banco de dados.
+  console.log('CHECANDO ATENDIMENTO');
+  console.log('BANCO: ' + banco.length);
+  if (banco.filter(valor => valor.atendimento == obj.atendimento).length > 0) {
+    deleteAtendimento(obj.atendimento);
+  } else {
+    insertAtendimento(obj);
+  }
+}
+
+const deleteAtendimento = (atendimento) => {
+  var sql = "DELETE FROM gesthos_atendimento WHERE atendimento = $1";
+  pool.query(sql, [atendimento], (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+    console.log('REGISTRO DELETADO COM SUCESSO');
+  });
+}
+
+const insertAtendimento = (obj) => {
+  console.log('INSERIR ATENDIMENTO');
+  var sql = "INSERT INTO gesthos_atendimento (data, hora, prontuario, atendimento, paciente, sexo, nascimento, unidadeinternacao, leito) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+  pool.query(sql, [
+    obj.data,
+    obj.hora,
+    obj.prontuario,
+    obj.atendimento,
+    obj.paciente,
+    obj.sexo,
+    obj.nascimento,
+    obj.unidadeinternacao,
+    obj.leito
+  ], (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+    console.log('REGISTRO INSERIDO NO BANCO COM SUCESSO: ' + results);
+  });
+}
+
 app.post("/gesthos_atendimentos", (req, res) => {
   atendimentos = req.body;
   console.log('RESPOSTA: ' + JSON.stringify(atendimentos));
   res.send('SUCESSO');
 });
 
-// entregando ao Front Pulsar os dados de atendimento (api Pulsar >> front Pulsar).
+let banco = [];
+// recuperando atendimentos no banco Pulsar e entregando ao Front Pulsar os dados de atendimento (api Pulsar >> front Pulsar).
+let arrayinternados = [];
 app.get("/pulsar_atendimentos", (req, res) => {
-  if (atendimentos == []) {
-    console.log('SEM INFORMAÇÕES');
-  } else {
-    res.send(atendimentos);
-  }
+  var sql = "SELECT * FROM gesthos_atendimento";
+  pool.query(sql, (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+    var x = results.rows;
+    banco = x;
+    console.log('BANCO: ' + JSON.stringify(banco));
+    if (atendimentos == []) {
+      console.log('SEM INFORMAÇÕES');
+    } else {
+      let internados = atendimentos.pacientes;
+      internados.map(item => item.hasOwnProperty('internacao') == true ? arrayinternados.push(item) : null);
+      res.send(arrayinternados);
+      arrayinternados.map(item => checkAtendimento(item.internacao));
+    }
+  });
 });
 
 // recebendo dados vitais (robô Gesthos >> api Pulsar).
