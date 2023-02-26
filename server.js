@@ -1821,8 +1821,8 @@ app.get("/pulsar_atendimentos", (req, res) => {
       console.log('SEM INFORMAÇÕES');
     } else {
       let internados = atendimentos.pacientes;
-      internados.map(item => arrayinternados.push(item));
-      // internados.map(item => item.hasOwnProperty('internacao') == true ? arrayinternados.push(item) : null);
+      // internados.map(item => arrayinternados.push(item));
+      internados.map(item => item.hasOwnProperty('internacao') == true ? arrayinternados.push(item) : null);
       res.send(arrayinternados);
       arrayinternados.map(item => checkAtendimento(item.internacao));
     }
