@@ -1820,7 +1820,8 @@ app.get("/pulsar_atendimentos", (req, res) => {
     if (atendimentos == []) {
       console.log('SEM INFORMAÇÕES');
     } else {
-      let internados = atendimentos.map(item => item.pacientes);
+      let internados = [];
+      internados = atendimentos.map(item => item.pacientes);
       internados.map(item => arrayinternados.push(item));
       // internados.map(item => item.hasOwnProperty('internacao') == true ? arrayinternados.push(item) : null);
       res.send(arrayinternados);
