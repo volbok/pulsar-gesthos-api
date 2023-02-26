@@ -1821,7 +1821,9 @@ app.get("/pulsar_atendimentos", (req, res) => {
       console.log('SEM INFORMAÇÕES');
     } else {
       let internados = [];
-      internados = atendimentos.map(item => item.pacientes);
+      // internados = atendimentos.map(item => item.pacientes);
+      internados = atendimentos.pacientes;
+      console.log('PORRA: ' + JSON.stringify(internados));
       internados.map(item => arrayinternados.push(item));
       // internados.map(item => item.hasOwnProperty('internacao') == true ? arrayinternados.push(item) : null);
       res.send(arrayinternados);
