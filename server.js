@@ -1752,8 +1752,11 @@ app.get("/delete_opcoes_prescricao/:id", (req, res) => {
 });
 
 // ## INTEGRAÇÃO GESTHOS ## //
-// recebendo dados dos atendimentos (robô Gesthos >> api Pulsar).
-let atendimentos = [];
+let atendimentos = []; // objetos injetados pelo robô Gesthos.
+let banco = []; // registros de objetos recuperados do banco de dados Pulsar.
+let arrayinternados = [];
+
+// endpoint que retorna todos os registros de atendimento internados no banco de dados Pulsar (não utilizada atualmente).
 app.get("/lista_atendimentos", (req, res) => {
   var sql = "SELECT * FROM gesthos_atendimento";
   pool.query(sql, (error, results) => {
@@ -1762,6 +1765,7 @@ app.get("/lista_atendimentos", (req, res) => {
   });
 });
 
+// funções usadas no mapeamento de objetos de internação e de alta, injetados pelo robô Gesthos.
 const checkAtendimentoInternacao = (obj) => {
   // checa se o atendimento injetado com status "internacao" já existia no banco de dados.
   console.log('CHECANDO ATENDIMENTO PRÉVIO');
@@ -1775,7 +1779,6 @@ const checkAtendimentoInternacao = (obj) => {
     insertAtendimento(obj);
   }
 }
-
 const checkAtendimentoAlta = (obj) => {
   // checa se o atendimento injetado com status "alta" já existia no banco de dados.
   console.log('CHECANDO ATENDIMENTO PRÉVIO');
@@ -1790,17 +1793,17 @@ const checkAtendimentoAlta = (obj) => {
   }
 }
 
+// funções que deletam ou inserem objetos de internação, conforme os resultados das checagens realizadas pelas funções acima.
 const deleteAtendimento = (obj, modo) => {
   var sql = "DELETE FROM gesthos_atendimento WHERE atendimento = $1";
   pool.query(sql, [obj.atendimento], (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     console.log('REGISTRO DELETADO COM SUCESSO');
-    if (modo == 1){
+    if (modo == 1) {
       insertAtendimento(obj);
     }
   });
 }
-
 const insertAtendimento = (obj) => {
   console.log('INSERIR ATENDIMENTO');
   var sql = "INSERT INTO gesthos_atendimento (data, hora, prontuario, atendimento, paciente, sexo, nascimento, unidadeinternacao, leito) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
@@ -1820,15 +1823,16 @@ const insertAtendimento = (obj) => {
   });
 }
 
+// injetando objetos de internação e de alta (robô Gesthos >> api Pulsar).
 app.post("/gesthos_atendimentos", (req, res) => {
   atendimentos = req.body;
-  console.log('RESPOSTA: ' + JSON.stringify(atendimentos));
   res.send('SUCESSO');
 });
 
-let banco = [];
-// recuperando atendimentos no banco Pulsar e entregando ao Front Pulsar os dados de atendimento (api Pulsar >> front Pulsar).
-let arrayinternados = [];
+/*
+recuperando objetos no banco de dados Pulsar e tratando inserções ou deleções de registros no banco,
+através do mapeamento de cada objeto injetado (api Pulsar >> front Pulsar).
+*/
 app.get("/pulsar_atendimentos", (req, res) => {
   arrayinternados = [];
   var sql = "SELECT * FROM gesthos_atendimento";
@@ -1836,16 +1840,12 @@ app.get("/pulsar_atendimentos", (req, res) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     var x = results.rows;
     banco = x;
-    console.log('BANCO: ' + JSON.stringify(banco));
     if (atendimentos == []) {
       console.log('SEM INFORMAÇÕES');
     } else {
       let internados = [];
-      // internados = atendimentos.map(item => item.pacientes);
       internados = atendimentos.pacientes;
-      console.log('PORRA: ' + JSON.stringify(atendimentos.pacientes));
       internados.map(item => arrayinternados.push(item));
-      // internados.map(item => item.hasOwnProperty('internacao') == true ? arrayinternados.push(item) : null);
       res.send(arrayinternados);
       arrayinternados.filter(item => item.hasOwnProperty('internacao') == true).map(item => checkAtendimentoInternacao(item.internacao));
       arrayinternados.filter(item => item.hasOwnProperty('alta') == true).map(item => checkAtendimentoAlta(item.alta));
@@ -1853,7 +1853,7 @@ app.get("/pulsar_atendimentos", (req, res) => {
   });
 });
 
-// recebendo dados vitais (robô Gesthos >> api Pulsar).
+// recebendo objetos de dados assistenciais (robô Gesthos >> api Pulsar).
 let assistencial = [];
 app.post("/gesthos_assistencial", (req, res) => {
   assistencial = req.body;
@@ -1861,6 +1861,7 @@ app.post("/gesthos_assistencial", (req, res) => {
   res.send('SUCESSO');
 });
 
+// recuperando objetos de dados assistenciais (api Pulsar >> front Pulsar).
 app.get("/pulsar_assistencial", (req, res) => {
   if (assistencial == []) {
     res.send('SEM INFORMAÇÕES');
