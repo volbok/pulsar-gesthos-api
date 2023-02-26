@@ -1770,7 +1770,7 @@ const checkAtendimentoInternacao = (obj) => {
     se existia, o registro deve ser deletado e substituído por um novo com o mesmo status "internado".
     isso pode ocorrer nas mudanças de leito ou de outras propriedades do atendimento.
     */
-    deleteAtendimento(obj.atendimento, 1);
+    deleteAtendimento(obj, 1);
   } else {
     insertAtendimento(obj);
   }
@@ -1784,15 +1784,15 @@ const checkAtendimentoAlta = (obj) => {
     /* 
     se existia, o registro deve ser deletado.
     */
-    deleteAtendimento(obj.atendimento, 0);
+    deleteAtendimento(obj, 0);
   } else {
     console.log('ATENÇÃO: TENTATIVA DE INJETAR OBJETO DE ALTA, SEM CORRESPONDENTE INTERNADO PRÉVIO.')
   }
 }
 
-const deleteAtendimento = (atendimento, modo) => {
+const deleteAtendimento = (obj, modo) => {
   var sql = "DELETE FROM gesthos_atendimento WHERE atendimento = $1";
-  pool.query(sql, [atendimento], (error, results) => {
+  pool.query(sql, [obj.atendimento], (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     console.log('REGISTRO DELETADO COM SUCESSO');
     if (modo == 1){
