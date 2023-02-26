@@ -1827,7 +1827,7 @@ app.get("/pulsar_atendimentos", (req, res) => {
       internados.map(item => arrayinternados.push(item));
       // internados.map(item => item.hasOwnProperty('internacao') == true ? arrayinternados.push(item) : null);
       res.send(arrayinternados);
-      // arrayinternados.map(item => checkAtendimento(item.internacao));
+      arrayinternados.map(item => checkAtendimento(item.internacao));
     }
   });
 });
