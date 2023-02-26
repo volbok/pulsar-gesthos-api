@@ -1762,14 +1762,32 @@ app.get("/lista_atendimentos", (req, res) => {
   });
 });
 
-const checkAtendimento = (obj) => {
-  // checa se o atendimento já existia no banco de dados.
-  console.log('CHECANDO ATENDIMENTO');
-  console.log('BANCO: ' + banco.length);
+const checkAtendimentoInternacao = (obj) => {
+  // checa se o atendimento injetado com status "internacao" já existia no banco de dados.
+  console.log('CHECANDO ATENDIMENTO PRÉVIO');
   if (banco.filter(valor => valor.atendimento == obj.atendimento).length > 0) {
+    /* 
+    se existia, o registro deve ser deletado e substituído por um novo com o mesmo status "internado".
+    isso pode ocorrer nas mudanças de leito ou de outras propriedades do atendimento.
+    */
     deleteAtendimento(obj.atendimento);
+    insertAtendimento(obj);
   } else {
     insertAtendimento(obj);
+  }
+}
+
+const checkAtendimentoAlta = (obj) => {
+  // checa se o atendimento injetado com status "alta" já existia no banco de dados.
+  console.log('CHECANDO ATENDIMENTO PRÉVIO');
+  console.log('BANCO: ' + banco.length);
+  if (banco.filter(valor => valor.atendimento == obj.atendimento).length > 0) {
+    /* 
+    se existia, o registro deve ser deletado.
+    */
+    deleteAtendimento(obj.atendimento);
+  } else {
+    console.log('ATENÇÃO: TENTATIVA DE INJETAR OBJETO DE ALTA, SEM CORRESPONDENTE INTERNADO PRÉVIO.')
   }
 }
 
@@ -1827,8 +1845,8 @@ app.get("/pulsar_atendimentos", (req, res) => {
       internados.map(item => arrayinternados.push(item));
       // internados.map(item => item.hasOwnProperty('internacao') == true ? arrayinternados.push(item) : null);
       res.send(arrayinternados);
-      arrayinternados.filter(item => item.hasOwnProperty('internacao') == true).map(item => checkAtendimento(item.internacao));
-      arrayinternados.filter(item => item.hasOwnProperty('alta') == true).map(item => checkAtendimento(item.alta));
+      arrayinternados.filter(item => item.hasOwnProperty('internacao') == true).map(item => checkAtendimentoInternacao(item.internacao));
+      arrayinternados.filter(item => item.hasOwnProperty('alta') == true).map(item => checkAtendimentoAlta(item.alta));
     }
   });
 });
