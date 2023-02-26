@@ -1823,8 +1823,8 @@ app.get("/pulsar_atendimentos", (req, res) => {
       let internados = [];
       // internados = atendimentos.map(item => item.pacientes);
       internados = atendimentos.pacientes;
-      console.log('PORRA: ' + JSON.stringify(atendimentos));
-      // internados.map(item => arrayinternados.push(item));
+      console.log('PORRA: ' + JSON.stringify(atendimentos.pacientes));
+      internados.map(item => arrayinternados.push(item));
       // internados.map(item => item.hasOwnProperty('internacao') == true ? arrayinternados.push(item) : null);
       res.send(arrayinternados);
       // arrayinternados.map(item => checkAtendimento(item.internacao));
