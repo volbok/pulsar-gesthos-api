@@ -1844,12 +1844,13 @@ app.get("/pulsar_atendimentos", (req, res) => {
     console.log(atendimentos);
     if (atendimentos == [] || atendimentos == null || atendimentos == undefined || atendimentos == '') {
       console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
-      res.send('SEM DADOS ENVIADOS PELO BOT GESTHOS');
+      res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', conteudo: atendimentos });
     } else {
       let internados = [];
       internados = atendimentos.pacientes;
       internados.map(item => arrayinternados.push(item));
-      res.send(arrayinternados);
+      res.json({ message: 'PACIENTES MOVIMENTADOS:', conteudo: atendimentos.pacientes });
+      // atualizando banco de dados.
       arrayinternados.filter(item => item.hasOwnProperty('internacao') == true).map(item => checkAtendimentoInternacao(item.internacao));
       arrayinternados.filter(item => item.hasOwnProperty('alta') == true).map(item => checkAtendimentoAlta(item.alta));
     }
