@@ -1840,8 +1840,9 @@ app.get("/pulsar_atendimentos", (req, res) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     var x = results.rows;
     banco = x;
-    if (atendimentos == []) {
+    if (atendimentos == [] || atendimentos == null || atendimentos == undefined) {
       console.log('SEM INFORMAÇÕES');
+      res.send('SEM DADOS');
     } else {
       let internados = [];
       internados = atendimentos.pacientes;
