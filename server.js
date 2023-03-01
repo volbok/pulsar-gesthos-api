@@ -1826,6 +1826,7 @@ const insertAtendimento = (obj) => {
 // injetando objetos de internação e de alta (robô Gesthos >> api Pulsar).
 app.post("/gesthos_atendimentos", (req, res) => {
   atendimentos = req.body;
+  console.log(atendimentos);
   res.send('SUCESSO');
 });
 
@@ -1840,6 +1841,8 @@ app.get("/pulsar_atendimentos", (req, res) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     var x = results.rows;
     banco = x;
+    console.log(atendimentos);
+    /*
     if (atendimentos == [] || atendimentos == null || atendimentos == undefined) {
       console.log('SEM INFORMAÇÕES');
       res.send('SEM DADOS');
@@ -1851,6 +1854,7 @@ app.get("/pulsar_atendimentos", (req, res) => {
       arrayinternados.filter(item => item.hasOwnProperty('internacao') == true).map(item => checkAtendimentoInternacao(item.internacao));
       arrayinternados.filter(item => item.hasOwnProperty('alta') == true).map(item => checkAtendimentoAlta(item.alta));
     }
+    */
   });
 });
 
