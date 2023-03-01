@@ -1862,6 +1862,7 @@ const insertRegistroAssistencial = (obj) => {
 
 // injetando objetos de dados assistenciais (robô Gesthos >> api Pulsar).
 app.post("/gesthos_assistencial", (req, res) => {
+  arrayassistencial = [];
   assistenciais = req.body;
   console.log(assistenciais);
   if (assistenciais == [] || assistenciais == null || assistenciais == undefined || assistenciais == '') {
@@ -1873,11 +1874,15 @@ app.post("/gesthos_assistencial", (req, res) => {
     dados_assistenciais.map(item => arrayassistencial.push(item));
     res.json({ message: 'NOVOS REGISTROS ASSISTENCIAIS:', conteudo: assistenciais.registro });
     // atualizando banco de dados.
+    var documentos = arrayassistencial.filter(item => item.hasOwnProperty('documento') == true).length;
+    var precaucao = arrayassistencial.filter(item => item.hasOwnProperty('precaucao') == true).length;
+    var exame = arrayassistencial.filter(item => item.hasOwnProperty('exame') == true).length;
+
+    console.log(documentos + ' - ' + precaucao + ' - ' + exame);
     arrayassistencial.filter(item => item.hasOwnProperty('documento') == true).map(item => insertRegistroAssistencial(item.documento));
     arrayassistencial.filter(item => item.hasOwnProperty('precaucao') == true).map(item => insertRegistroAssistencial(item.precaucao));
     arrayassistencial.filter(item => item.hasOwnProperty('exame') == true).map(item => insertRegistroAssistencial(item.exame));
   }
-  res.send('SUCESSO');
 });
 
 /*
@@ -1916,7 +1921,7 @@ app.get("/pulsar_assistencial", (req, res) => {
     var x = results.rows;
     bd_assistencial = x;
     console.log(assistenciais);
-    
+
     /*
     if (assistenciais == [] || assistenciais == null || assistenciais == undefined || assistenciais == '') {
       console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
