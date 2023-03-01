@@ -1864,6 +1864,19 @@ const insertRegistroAssistencial = (obj) => {
 app.post("/gesthos_assistencial", (req, res) => {
   assistenciais = req.body;
   console.log(assistenciais);
+  if (assistenciais == [] || assistenciais == null || assistenciais == undefined || assistenciais == '') {
+    console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
+    res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
+  } else {
+    let dados_assistenciais = [];
+    dados_assistenciais = assistenciais.registro;
+    dados_assistenciais.map(item => arrayassistencial.push(item));
+    res.json({ message: 'NOVOS REGISTROS ASSISTENCIAIS:', conteudo: assistenciais.registro });
+    // atualizando banco de dados.
+    arrayassistencial.filter(item => item.hasOwnProperty('documento') == true).map(item => insertRegistroAssistencial(item.documento));
+    arrayassistencial.filter(item => item.hasOwnProperty('precaucao') == true).map(item => insertRegistroAssistencial(item.precaucao));
+    arrayassistencial.filter(item => item.hasOwnProperty('exame') == true).map(item => insertRegistroAssistencial(item.exame));
+  }
   res.send('SUCESSO');
 });
 
@@ -1903,6 +1916,8 @@ app.get("/pulsar_assistencial", (req, res) => {
     var x = results.rows;
     bd_assistencial = x;
     console.log(assistenciais);
+    
+    /*
     if (assistenciais == [] || assistenciais == null || assistenciais == undefined || assistenciais == '') {
       console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
       res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
@@ -1916,5 +1931,6 @@ app.get("/pulsar_assistencial", (req, res) => {
       arrayassistencial.filter(item => item.hasOwnProperty('precaucao') == true).map(item => insertRegistroAssistencial(item.precaucao));
       arrayassistencial.filter(item => item.hasOwnProperty('exame') == true).map(item => insertRegistroAssistencial(item.exame));
     }
+    */
   });
 });
