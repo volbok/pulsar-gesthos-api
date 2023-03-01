@@ -1759,9 +1759,18 @@ let bd_assistencial = []; // registros de objetos "assistenciais" recuperados do
 let arrayinternados = [];
 let arrayassistencial = [];
 
-// endpoint que retorna todos os registros de atendimento internados no banco de dados Pulsar (não utilizada atualmente).
+// endpoint que retorna todos os registros de atendimento internados no banco de dados Pulsar.
 app.get("/lista_atendimentos", (req, res) => {
   var sql = "SELECT * FROM gesthos_atendimento";
+  pool.query(sql, (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+    res.send(results);
+  });
+});
+
+// endpoint que retorna todos os registros assistenciais no banco de dados Pulsar.
+app.get("/lista_assistencial", (req, res) => {
+  var sql = "SELECT * FROM gesthos_assistencial";
   pool.query(sql, (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     res.send(results);
