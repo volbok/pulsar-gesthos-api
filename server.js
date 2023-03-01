@@ -1842,10 +1842,9 @@ app.get("/pulsar_atendimentos", (req, res) => {
     var x = results.rows;
     banco = x;
     console.log(atendimentos);
-    /*
-    if (atendimentos == [] || atendimentos == null || atendimentos == undefined) {
-      console.log('SEM INFORMAÇÕES');
-      res.send('SEM DADOS');
+    if (atendimentos == [] || atendimentos == null || atendimentos == undefined || atendimentos == '') {
+      console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
+      res.send('SEM DADOS ENVIADOS PELO BOT GESTHOS');
     } else {
       let internados = [];
       internados = atendimentos.pacientes;
@@ -1854,7 +1853,6 @@ app.get("/pulsar_atendimentos", (req, res) => {
       arrayinternados.filter(item => item.hasOwnProperty('internacao') == true).map(item => checkAtendimentoInternacao(item.internacao));
       arrayinternados.filter(item => item.hasOwnProperty('alta') == true).map(item => checkAtendimentoAlta(item.alta));
     }
-    */
   });
 });
 
