@@ -111,7 +111,7 @@ OBS.: esta aplicação é utilizada por mim para testes, e apenas ilustra como s
 
 <h2>PULSAR</h2>
 
-<h3>ATENDIMENTOS<h3>
+<h3>ATENDIMENTOS</h3>
 A API criada no ambiente Pulsar (API Pulsar) declara a endpoint http://pulsar-gesthos-api.up.railway.app/gesthos_atendimentos. Como explicado acima, quando o robô Gesthos consome esta endpoint, é retornada uma array de JSONs que será armazenada na API pulsar, e posteriormente acessada pelo FrontEnd, pelo método GET, via endpoint http://pulsar-gesthos-api.up.railway.app/pulsar_atendimentos.
 
 Como o robô gestHos envia apenas novos objetos de internação ou alta, faz-se necessário que, a cada consumo (por parte do FrontEnd) da endpoint http://pulsar-gesthos-api.up.railway.app/pulsar_atendimentos, estes objetos sejam devidamente tratados e armazenados no banco de dados do Pulsar. Este processo se dá pelo algoritmo explicado a seguir:
@@ -127,7 +127,7 @@ Como o robô gestHos envia apenas novos objetos de internação ou alta, faz-se 
 2. O server Pulsar avalia se o número de atendimento deste objeto está presente em algum objeto previamente armazenado no banco de dados Pulsar (sempre um objeto de internação).
 3. Em caso afirmativo, o registro preexistente é deletado, e o objeto de alta injetado descartado.
 
-<h3>ASSISTENCIAL<h3>
+<h3>ASSISTENCIAL</h3>
 A API Pulsar declara também a endpoint http://pulsar-gesthos-api.up.railway.app/gesthos_assistencial. Quando o robô Gesthos consome esta endpoint, é retornada uma array de JSONs contendo registros assistenciais (precauções, alergias, dados vitais, resultados de exames), que serão armazenados no banco de Dados Pulsar.
 Os dados assistenciais serão disponibilizados para o FrontEnd através da endpoint http://pulsar-gesthos-api.up.railway.app/lista_assistencial.
 
