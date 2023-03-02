@@ -1869,7 +1869,8 @@ app.post("/gesthos_assistencial", (req, res) => {
   console.log(assistenciais);
   if (assistenciais == [] || assistenciais == null || assistenciais == undefined || assistenciais == '') {
     console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
-    res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
+    // res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
+    res.send('SUCESSO');
   } else {
     let dados_assistenciais = [];
     dados_assistenciais = assistenciais.registro;
