@@ -1869,13 +1869,13 @@ app.post("/gesthos_assistencial", (req, res) => {
   console.log(assistenciais);
   if (assistenciais == [] || assistenciais == null || assistenciais == undefined || assistenciais == '') {
     console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
-    // res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
-    res.send('SUCESSO');
+    res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
   } else {
     let dados_assistenciais = [];
     dados_assistenciais = assistenciais.registro;
     dados_assistenciais.map(item => arrayassistencial.push(item));
-    res.json({ message: 'NOVOS REGISTROS ASSISTENCIAIS:', conteudo: assistenciais.registro });
+    // res.json({ message: 'NOVOS REGISTROS ASSISTENCIAIS:', conteudo: assistenciais.registro });
+    res.send('SUCESSO');
     // atualizando banco de dados.
     var documentos = arrayassistencial.filter(item => item.hasOwnProperty('documento') == true).length;
     var precaucao = arrayassistencial.filter(item => item.hasOwnProperty('precaucao') == true).length;
