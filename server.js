@@ -332,8 +332,8 @@ app.post("/insert_paciente", (req, res) => {
 });
 
 // atualizar paciente.
-app.post("/update_paciente/:id_paciente", (req, res) => {
-  const id_paciente = parseInt(req.params.id_paciente);
+app.post("/update_paciente/:id", (req, res) => {
+  const id = parseInt(req.params.id);
   const {
     prontuario,
     paciente,
