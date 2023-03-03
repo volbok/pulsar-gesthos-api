@@ -1860,7 +1860,7 @@ const insertAtendimento = (obj) => {
   });
 }
 
-app.post("/update_atendimento/:id", (req, res) => {
+app.post("/update_gesthos_atendimento/:id", (req, res) => {
   const id = parseInt(req.params.id);
   const {
     data,
@@ -1875,7 +1875,7 @@ app.post("/update_atendimento/:id", (req, res) => {
     problemas,
     situacao
   } = req.body;
-  var sql = "UPDATE gesthos_atendimento SET data = $1, hora = $2, prontuario = $3, atendimento = $4, paciente = $5, sexo = $6, nascimento = $7, unidadeinternacao = $8, leito = $9, problemas = $10, situacao = $11 WHERE id  = $12";
+  var sql = "UPDATE gesthos_atendimento SET data = $1, hora = $2, prontuario = $3, atendimento = $4, paciente = $5, sexo = $6, nascimento = $7, unidadeinternacao = $8, leito = $9, problemas = $10, situacao = $11 WHERE id = $12";
   pool.query(sql, [
     data,
     hora,
