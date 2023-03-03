@@ -1800,6 +1800,22 @@ const checkAtendimentoAlta = (obj) => {
   }
 }
 
+// função que insere no banco de dados Pulsar um registro de paciente, caso inexistente.
+const inserePaciente = (obj) => {
+  var sql = "INSERT INTO gesthos_pacientes (prontuario, paciente, antecedentes_pessoais, medicacoes_previas, exames_previos, exames_atuais) VALUES ($1, $2, $3, $4, $5, $6)"
+  pool.query(sql, [
+    obj.prontuario,
+    obj.paciente,
+    null,
+    null,
+    null,
+    null,
+  ], (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+    res.send(results);
+  });
+}
+
 // funções que deletam ou inserem objetos de internação, conforme os resultados das checagens realizadas pelas funções acima.
 const deleteAtendimento = (obj, modo) => {
   var sql = "DELETE FROM gesthos_atendimento WHERE atendimento = $1";
@@ -1827,6 +1843,18 @@ const insertAtendimento = (obj) => {
   ], (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     console.log('REGISTRO DE ATENDIMENTO INSERIDO NO BANCO COM SUCESSO: ' + JSON.stringify(results));
+    /* verificando se o paciente referente ao atendimento recém-criado já tem registro na tabela
+    gesthos_pacientes (necessária para registro dos dados da anamnese). */
+    var sql = "SELECT * FROM gesthos_paciente";
+    pool.query(sql, (error, results) => {
+      if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+      let pacientes = results.rows;
+      if (pacientes.filter(item => item.prontuario == obj.prontuario).length == 0) {
+        inserePaciente(obj);
+      } else {
+        console.log('PACIENTE JÁ TEM CADASTRO');
+      }
+    });
   });
 }
 
