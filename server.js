@@ -300,7 +300,7 @@ app.get("/delete_acesso/:id_acesso", (req, res) => {
 // PACIENTES.
 // listar todos os pacientes internados.
 app.get("/list_pacientes", verifyJWT, (req, res) => {
-  var sql = "SELECT * FROM paciente";
+  var sql = "SELECT * FROM gesthos_pacientes";
   pool.query(sql, (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     res.send(results);
@@ -310,19 +310,17 @@ app.get("/list_pacientes", verifyJWT, (req, res) => {
 // inserir paciente internado.
 app.post("/insert_paciente", (req, res) => {
   const {
-    nome_paciente,
-    nome_mae_paciente,
-    dn_paciente,
+    prontuario,
+    paciente,
     antecedentes_pessoais,
     medicacoes_previas,
     exames_previos,
     exames_atuais,
   } = req.body;
-  var sql = "INSERT INTO paciente (nome_paciente, nome_mae_paciente, dn_paciente, antecedentes_pessoais, medicacoes_previas, exames_previos, exames_atuais) VALUES ($1, $2, $3, $4, $5, $6, $7)"
+  var sql = "INSERT INTO gesthos_pacientes (prontuario, paciente, antecedentes_pessoais, medicacoes_previas, exames_previos, exames_atuais) VALUES ($1, $2, $3, $4, $5, $6)"
   pool.query(sql, [
-    nome_paciente,
-    nome_mae_paciente,
-    dn_paciente,
+    prontuario,
+    paciente,
     antecedentes_pessoais,
     medicacoes_previas,
     exames_previos,
@@ -337,24 +335,22 @@ app.post("/insert_paciente", (req, res) => {
 app.post("/update_paciente/:id_paciente", (req, res) => {
   const id_paciente = parseInt(req.params.id_paciente);
   const {
-    nome_paciente,
-    nome_mae_paciente,
-    dn_paciente,
+    prontuario,
+    paciente,
     antecedentes_pessoais,
     medicacoes_previas,
     exames_previos,
     exames_atuais,
   } = req.body;
-  var sql = "UPDATE paciente SET nome_paciente = $1, nome_mae_paciente = $2, dn_paciente = $3, antecedentes_pessoais = $4, medicacoes_previas = $5, exames_previos = $6, exames_atuais = $7  WHERE id_paciente = $8";
+  var sql = "UPDATE gesthos_pacientes SET prontuario = $1, paciente = $2, antecedentes_pessoais = $3, medicacoes_previas = $4, exames_previos = $5, exames_atuais = $6 WHERE id = $7";
   pool.query(sql, [
-    nome_paciente,
-    nome_mae_paciente,
-    dn_paciente,
+    prontuario,
+    paciente,
     antecedentes_pessoais,
     medicacoes_previas,
     exames_previos,
     exames_atuais,
-    id_paciente
+    id
   ], (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     res.send(results);
@@ -364,7 +360,7 @@ app.post("/update_paciente/:id_paciente", (req, res) => {
 // excluir paciente.
 app.get("/delete_paciente/:id_paciente", (req, res) => {
   const id_paciente = parseInt(req.params.id_paciente);
-  var sql = "DELETE FROM paciente WHERE id_paciente = $1";
+  var sql = "DELETE FROM gesthos_pacientes WHERE id = $1";
   pool.query(sql, [id_paciente], (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     res.send(results);
