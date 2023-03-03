@@ -1845,7 +1845,7 @@ const insertAtendimento = (obj) => {
     console.log('REGISTRO DE ATENDIMENTO INSERIDO NO BANCO COM SUCESSO: ' + JSON.stringify(results));
     /* verificando se o paciente referente ao atendimento recém-criado já tem registro na tabela
     gesthos_pacientes (necessária para registro dos dados da anamnese). */
-    var sql = "SELECT * FROM gesthos_paciente";
+    var sql = "SELECT * FROM gesthos_pacientes";
     pool.query(sql, (error, results) => {
       if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
       let pacientes = results.rows;
