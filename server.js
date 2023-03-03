@@ -1829,7 +1829,7 @@ const deleteAtendimento = (obj, modo) => {
 }
 const insertAtendimento = (obj) => {
   console.log('INSERINDO ATENDIMENTO...');
-  var sql = "INSERT INTO gesthos_atendimento (data, hora, prontuario, atendimento, paciente, sexo, nascimento, unidadeinternacao, leito) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+  var sql = "INSERT INTO gesthos_atendimento (data, hora, prontuario, atendimento, paciente, sexo, nascimento, unidadeinternacao, leito, problemas, situacao) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
   pool.query(sql, [
     obj.data,
     obj.hora,
@@ -1839,7 +1839,9 @@ const insertAtendimento = (obj) => {
     obj.sexo,
     obj.nascimento,
     obj.unidadeinternacao,
-    obj.leito
+    obj.leito,
+    null,
+    null
   ], (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     console.log('REGISTRO DE ATENDIMENTO INSERIDO NO BANCO COM SUCESSO: ' + JSON.stringify(results));
@@ -1857,6 +1859,41 @@ const insertAtendimento = (obj) => {
     });
   });
 }
+
+app.post("/update_atendimento/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const {
+    data,
+    hora,
+    prontuario,
+    atendimento,
+    paciente,
+    sexo,
+    nascimento,
+    unidadeinternacao,
+    leito,
+    problemas,
+    situacao
+  } = req.body;
+  var sql = "UPDATE gesthos_atendimento SET data = $1, hora = $2, prontuario = $3, atendimento = $4, paciente = $5, sexo = $6, nascimento = $7, unidadeinternacao = $8, leito = $9, problemas = $10, situacao = $11 WHERE id  = $12";
+  pool.query(sql, [
+    data,
+    hora,
+    prontuario,
+    atendimento,
+    paciente,
+    sexo,
+    nascimento,
+    unidadeinternacao,
+    leito,
+    problemas,
+    situacao,
+    id
+  ], (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+    res.send(results);
+  });
+});
 
 // função que insere objeto de registro assistencial no banco de dados Pulsar.
 const insertRegistroAssistencial = (obj) => {
