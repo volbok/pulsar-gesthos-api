@@ -1876,11 +1876,25 @@ const insertRegistroAssistencial = (obj) => {
   });
 }
 
-// injetando objetos de internação e de alta (robô Gesthos >> api Pulsar).
+/* injetando objetos de internação e de alta (robô Gesthos >> api Pulsar), salvando no banco de dados
+Pulsar os novos resgistros.
+*/
 app.post("/gesthos_atendimentos", (req, res) => {
   atendimentos = req.body;
   console.log(atendimentos);
-  res.send('SUCESSO');
+  if (atendimentos == [] || atendimentos == null || atendimentos == undefined || atendimentos == '') {
+    console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
+    res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: atendimentos });
+  } else {
+    let internados = [];
+    arrayinternados = [];
+    internados = atendimentos.pacientes;
+    internados.map(item => arrayinternados.push(item));
+    res.send('SUCESSO');
+    // atualizando banco de dados.
+    arrayinternados.filter(item => item.hasOwnProperty('internacao') == true).map(item => checkAtendimentoInternacao(item.internacao));
+    arrayinternados.filter(item => item.hasOwnProperty('alta') == true).map(item => checkAtendimentoAlta(item.alta));
+  }
 });
 
 /*
@@ -1898,43 +1912,10 @@ app.post("/gesthos_assistencial", (req, res) => {
     let dados_assistenciais = [];
     dados_assistenciais = assistenciais.registro;
     dados_assistenciais.map(item => arrayassistencial.push(item));
-    // res.json({ message: 'NOVOS REGISTROS ASSISTENCIAIS:', conteudo: assistenciais.registro });
     res.send('SUCESSO');
     // atualizando banco de dados.
-    var documentos = arrayassistencial.filter(item => item.hasOwnProperty('documento') == true).length;
-    var precaucao = arrayassistencial.filter(item => item.hasOwnProperty('precaucao') == true).length;
-    var exame = arrayassistencial.filter(item => item.hasOwnProperty('exame') == true).length;
-
-    console.log(documentos + ' - ' + precaucao + ' - ' + exame);
     arrayassistencial.filter(item => item.hasOwnProperty('documento') == true).map(item => insertRegistroAssistencial(item.documento));
     arrayassistencial.filter(item => item.hasOwnProperty('precaucao') == true).map(item => insertRegistroAssistencial(item.precaucao));
     arrayassistencial.filter(item => item.hasOwnProperty('exame') == true).map(item => insertRegistroAssistencial(item.exame));
   }
-});
-
-/*
-recuperando objetos no banco de dados Pulsar e tratando inserções ou deleções de registros no banco,
-através do mapeamento de cada objeto injetado (api Pulsar >> front Pulsar).
-*/
-app.get("/pulsar_atendimentos", (req, res) => {
-  arrayinternados = [];
-  var sql = "SELECT * FROM gesthos_atendimento";
-  pool.query(sql, (error, results) => {
-    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
-    var x = results.rows;
-    bd_atendimentos = x;
-    console.log(atendimentos);
-    if (atendimentos == [] || atendimentos == null || atendimentos == undefined || atendimentos == '') {
-      console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
-      res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: atendimentos });
-    } else {
-      let internados = [];
-      internados = atendimentos.pacientes;
-      internados.map(item => arrayinternados.push(item));
-      res.json({ message: 'PACIENTES MOVIMENTADOS:', conteudo: atendimentos.pacientes });
-      // atualizando banco de dados.
-      arrayinternados.filter(item => item.hasOwnProperty('internacao') == true).map(item => checkAtendimentoInternacao(item.internacao));
-      arrayinternados.filter(item => item.hasOwnProperty('alta') == true).map(item => checkAtendimentoAlta(item.alta));
-    }
-  });
 });
