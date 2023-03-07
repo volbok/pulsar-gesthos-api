@@ -1815,7 +1815,7 @@ const insertAtendimento = (obj) => {
     pool.query(sql, (error, results) => {
       let pacientes = results.rows;
       if (pacientes.filter(item => item.prontuario == obj.prontuario).length == 0) {
-        // inserePaciente(obj);
+        inserePaciente(obj);
       } else {
         console.log('PACIENTE JÁ TEM CADASTRO');
       }
@@ -1879,100 +1879,110 @@ const insertRegistroAssistencial = (obj) => {
 /* injetando objetos de internação e de alta (robô Gesthos >> api Pulsar), salvando no banco de dados
 Pulsar os novos resgistros.
 */
+let db_atendimentos = [];
 let objetos = [];
-let arrayInsertAtendimento = [];
-let arrayDeleteAtendimento = [];
-let arrayInsertPaciente = [];
+
+const carregaBanco = () => {
+  var sql = "SELECT * FROM gesthos_atendimento";
+  pool.query(sql, (error, results) => {
+    db_atendimentos = results.rows;
+  });
+}
 
 const trataAtendimentos = () => {
   // mapeando os objetos sortidos por data e verificando se os mesmos já estão registrados no banco de dados.
   objetos.sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).map(item => {
     // console.log(objetos.sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).map(item => moment(item.data).format('DD/MM/YYYY HH:mm')));
     // retornando todos os registros de atendimento no banco de dados.
-    var sql = "SELECT * FROM gesthos_atendimento";
-    pool.query(sql, (error, results) => {
-      let db_atendimentos = results.rows;
-      /* 
-      SITUAÇÃO 1:
+    // carregabanco();
+    /* 
+    SITUAÇÃO 1:
+    o objeto é uma internação,
+    o objeto não tem registro prévio de atendimento no banco de dados,
+    o objeto não tem um objeto de alta concorrente (mesmo atendimento) posterior.
+    */
+    if (item.situacao == 'internacao' &&
+      db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length == 0 &&
+      objetos.filter(valor =>
+        valor.situacao == 'alta' &&
+        valor.atendimento == item.atendimento &&
+        moment(valor.data) > moment(item.data)).length == 0
+    ) {
+      insertAtendimento(item);
+      /*
+      SITUAÇÃO 2:
       o objeto é uma internação,
-      o objeto não tem registro prévio de atendimento no banco de dados,
-      o objeto não tem um objeto de alta concorrente (mesmo atendimento) posterior.
+      o objeto tem registro prévio de atendimento no banco de dados,
+      o objeto tem um objeto de alta concorrente (mesmo atendimento) posterior.
       */
-      if (item.situacao == 'internacao' &&
-        db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length == 0 &&
-        objetos.filter(valor =>
-          valor.situacao == 'alta' &&
-          valor.atendimento == item.atendimento &&
-          moment(valor.data) > moment(item.data)).length == 0
-      ) {
-        insertAtendimento(item);
-        /*
-        SITUAÇÃO 2:
-        o objeto é uma internação,
-        o objeto tem registro prévio de atendimento no banco de dados,
-        o objeto tem um objeto de alta concorrente (mesmo atendimento) posterior.
-        */
-      } else if (item.situacao == 'internacao' &&
-        db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length > 0 &&
-        objetos.filter(valor =>
-          valor.situacao == 'alta' &&
-          valor.atendimento == item.atendimento &&
-          moment(valor.data) > moment(item.data)).length > 0
-      ) {
-        arrayDeleteAtendimento
-        deleteAtendimento(item);
-        /*
-        SITUAÇÃO 3:
-        o objeto é uma alta,
-        o objeto tem registro prévio de atendimento no banco de dados,
-        o objeto não tem um objeto de internação concorrente (mesmo atendimento) posterior.
-        */
-      } else if (item.situacao == 'alta' &&
-        db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length > 0 &&
-        objetos.filter(valor =>
-          valor.situacao == 'internacao' &&
-          valor.atendimento == item.atendimento &&
-          moment(valor.data) > moment(item.data)).length == 0
-      ) {
-        deleteAtendimento(item);
-        /*
-        SITUAÇÃO 4:
-        o objeto é uma alta,
-        o objeto não tem registro prévio de atendimento no banco de dados,
-        o objeto tem um objeto de internação concorrente (mesmo atendimento) posterior.
-        */
-      } else if (item.situacao == 'alta' &&
-        db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length == 0 &&
-        objetos.filter(valor =>
-          valor.situacao == 'internacao' &&
-          valor.atendimento == item.atendimento &&
-          moment(valor.data) > moment(item.data)).length > 0
-      ) {
-        insertAtendimento(item);
-        /*
-        SITUAÇÃO 5:
-        o objeto é uma alta,
-        o objeto tem registro prévio de atendimento no banco de dados,
-        o objeto tem um objeto de internação concorrente (mesmo atendimento) posterior.
-        */
-      } else if (item.situacao == 'alta' &&
-        db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length > 0 &&
-        objetos.filter(valor =>
-          valor.situacao == 'internacao' &&
-          valor.atendimento == item.atendimento &&
-          moment(valor.data) > moment(item.data)).length > 0
-      ) {
-        deleteAtendimento(item);
-        insertAtendimento(item);
+    } else if (item.situacao == 'internacao' &&
+      db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length > 0 &&
+      objetos.filter(valor =>
+        valor.situacao == 'alta' &&
+        valor.atendimento == item.atendimento &&
+        moment(valor.data) > moment(item.data)).length > 0
+    ) {
+      deleteAtendimento(item);
+      /*
+      SITUAÇÃO 3:
+      o objeto é uma alta,
+      o objeto tem registro prévio de atendimento no banco de dados,
+      o objeto não tem um objeto de internação concorrente (mesmo atendimento) posterior.
+      */
+    } else if (item.situacao == 'alta' &&
+      db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length > 0 &&
+      objetos.filter(valor =>
+        valor.situacao == 'internacao' &&
+        valor.atendimento == item.atendimento &&
+        moment(valor.data) > moment(item.data)).length == 0
+    ) {
+      deleteAtendimento(item);
+      /*
+      SITUAÇÃO 4:
+      o objeto é uma alta,
+      o objeto não tem registro prévio de atendimento no banco de dados,
+      o objeto tem um objeto de internação concorrente (mesmo atendimento) posterior.
+      */
+    } else if (item.situacao == 'alta' &&
+      db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length == 0 &&
+      objetos.filter(valor =>
+        valor.situacao == 'internacao' &&
+        valor.atendimento == item.atendimento &&
+        moment(valor.data) > moment(item.data)).length > 0
+    ) {
+      insertAtendimento(item);
+      /*
+      SITUAÇÃO 5:
+      o objeto é uma alta,
+      o objeto tem registro prévio de atendimento no banco de dados,
+      o objeto tem um objeto de internação concorrente (mesmo atendimento) posterior.
+      */
+    } else if (item.situacao == 'alta' &&
+      db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length > 0 &&
+      objetos.filter(valor =>
+        valor.situacao == 'internacao' &&
+        valor.atendimento == item.atendimento &&
+        moment(valor.data) > moment(item.data)).length > 0
+    ) {
+      deleteAtendimento(item);
+      insertAtendimento(item);
 
-      } else {
-        console.log('NADA A SER FEITO')
-      }
-    });
+    } else {
+      console.log('NADA A SER FEITO')
+    }
   });
 }
+
+const trataObjetos = () => {
+  objetos.map(item => {
+    // verificar se o item tem concorrente.
+    if (item.situacao == 'internacao');
+  })
+}
+
 app.post("/gesthos_atendimentos", (req, res) => {
   atendimentos = req.body;
+  carregaBanco();
   objetos = [];
   if (atendimentos == [] || atendimentos == null || atendimentos == undefined || atendimentos == '') {
     res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: atendimentos });
