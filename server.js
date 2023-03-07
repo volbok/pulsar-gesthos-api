@@ -1894,7 +1894,7 @@ const trataAtendimentos = () => {
   objetos.sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).map(item => {
     // console.log(objetos.sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).map(item => moment(item.data).format('DD/MM/YYYY HH:mm')));
     // retornando todos os registros de atendimento no banco de dados.
-    // carregabanco();
+    carregaBanco();
     setTimeout(() => {
       /* 
       SITUAÇÃO 1:
@@ -2024,6 +2024,7 @@ app.post("/gesthos_atendimentos", (req, res) => {
     resposta.filter(item => item.hasOwnProperty("internacao") == true).map(item => createObjInternacao(item.internacao));
     resposta.filter(item => item.hasOwnProperty("alta") == true).map(item => createObjAlta(item.alta));
     trataAtendimentos();
+    res.send('SUCESSO');
   }
 });
 
