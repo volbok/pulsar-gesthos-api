@@ -1,6 +1,7 @@
 // login com token.
 require("dotenv-safe").config();
 const jwt = require('jsonwebtoken');
+const moment = require("moment");
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -1750,8 +1751,6 @@ app.get("/delete_opcoes_prescricao/:id", (req, res) => {
 // ## INTEGRAÇÃO GESTHOS ## //
 let atendimentos = []; // objetos "atendimento" injetados pelo robô Gesthos.
 let assistenciais = []; // objetos "assistenciais" injetados pelo robô Gesthos.
-let bd_atendimentos = []; // registros de objetos "atendimento" recuperados do banco de dados Pulsar.
-let arrayinternados = [];
 let arrayassistencial = [];
 
 // endpoint que retorna todos os registros de atendimento internados no banco de dados Pulsar.
@@ -1772,34 +1771,6 @@ app.get("/lista_assistencial", (req, res) => {
   });
 });
 
-// funções usadas no mapeamento de objetos de internação e de alta, injetados pelo robô Gesthos.
-const checkAtendimentoInternacao = (obj) => {
-  // checa se o atendimento injetado com status "internacao" já existia no banco de dados.
-  console.log('CHECANDO ATENDIMENTO PRÉVIO');
-  if (bd_atendimentos.filter(valor => valor.atendimento == obj.atendimento).length > 0) {
-    /* 
-    se existia, o registro deve ser deletado e substituído por um novo com o mesmo status "internado".
-    isso pode ocorrer nas mudanças de leito ou de outras propriedades do atendimento.
-    */
-    deleteAtendimento(obj, 1);
-  } else {
-    insertAtendimento(obj);
-  }
-}
-const checkAtendimentoAlta = (obj) => {
-  // checa se o atendimento injetado com status "alta" já existia no banco de dados.
-  console.log('CHECANDO ATENDIMENTO PRÉVIO');
-  console.log('BANCO: ' + bd_atendimentos.length);
-  if (bd_atendimentos.filter(valor => valor.atendimento == obj.atendimento).length > 0) {
-    /* 
-    se existia, o registro deve ser deletado.
-    */
-    deleteAtendimento(obj, 0);
-  } else {
-    console.log('ATENÇÃO: TENTATIVA DE INJETAR OBJETO DE ALTA, SEM CORRESPONDENTE INTERNADO PRÉVIO.')
-  }
-}
-
 // função que insere no banco de dados Pulsar um registro de paciente, caso inexistente.
 const inserePaciente = (obj) => {
   var sql = "INSERT INTO gesthos_pacientes (prontuario, paciente, antecedentes_pessoais, medicacoes_previas, exames_previos, exames_atuais) VALUES ($1, $2, $3, $4, $5, $6)"
@@ -1817,22 +1788,17 @@ const inserePaciente = (obj) => {
 }
 
 // funções que deletam ou inserem objetos de internação, conforme os resultados das checagens realizadas pelas funções acima.
-const deleteAtendimento = (obj, modo) => {
+const deleteAtendimento = (obj) => {
   var sql = "DELETE FROM gesthos_atendimento WHERE atendimento = $1";
   pool.query(sql, [obj.atendimento], (error, results) => {
-    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
-    console.log('REGISTRO DELETADO COM SUCESSO');
-    if (modo == 1) {
-      insertAtendimento(obj);
-    }
+    // if (error) return console.log('ERRO AO TENTAR DELETAR REGISTRO DE ATENDIMENTO');
+    console.log('REGISTRO DE ATENDIMENTO DELETADO COM SUCESSO');
   });
 }
 const insertAtendimento = (obj) => {
-  console.log('INSERINDO ATENDIMENTO...');
-  var sql = "INSERT INTO gesthos_atendimento (data, hora, prontuario, atendimento, paciente, sexo, nascimento, unidadeinternacao, leito, problemas, situacao) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
+  var sql = "INSERT INTO gesthos_atendimento (data, prontuario, atendimento, paciente, sexo, nascimento, unidadeinternacao, leito, problemas, situacao) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
   pool.query(sql, [
-    obj.data,
-    obj.hora,
+    moment(obj.data).subtract(3, 'hours'),
     obj.prontuario,
     obj.atendimento,
     obj.paciente,
@@ -1843,16 +1809,16 @@ const insertAtendimento = (obj) => {
     null,
     null
   ], (error, results) => {
-    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
-    console.log('REGISTRO DE ATENDIMENTO INSERIDO NO BANCO COM SUCESSO: ' + JSON.stringify(results));
+    // if (error) return console.log('ERRO AO TENTAR INSERIR REGISTRO DE ATENDIMENTO');
+    console.log('REGISTRO DE ATENDIMENTO INSERIDO NO BANCO COM SUCESSO');
     /* verificando se o paciente referente ao atendimento recém-criado já tem registro na tabela
     gesthos_pacientes (necessária para registro dos dados da anamnese). */
     var sql = "SELECT * FROM gesthos_pacientes";
     pool.query(sql, (error, results) => {
-      if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+      // if (error) return console.log('ERRO AO RETORNAR REGISTROS DE ATENDIMENTOS');
       let pacientes = results.rows;
       if (pacientes.filter(item => item.prontuario == obj.prontuario).length == 0) {
-        inserePaciente(obj);
+        // inserePaciente(obj);
       } else {
         console.log('PACIENTE JÁ TEM CADASTRO');
       }
@@ -1897,7 +1863,7 @@ app.post("/update_gesthos_atendimento/:id", (req, res) => {
 
 // função que insere objeto de registro assistencial no banco de dados Pulsar.
 const insertRegistroAssistencial = (obj) => {
-  console.log('INSERINDO REGISTRO ASSISTENCIAL...');
+  // console.log('INSERINDO REGISTRO ASSISTENCIAL...');
   var sql = "INSERT INTO gesthos_assistencial (data, hora, prontuario, atendimento, grupo, item, valor) VALUES ($1, $2, $3, $4, $5, $6, $7)"
   pool.query(sql, [
     obj.data,
@@ -1909,28 +1875,113 @@ const insertRegistroAssistencial = (obj) => {
     obj.valor
   ], (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
-    console.log('REGISTRO INSERIDO NO BANCO COM SUCESSO: ' + JSON.stringify(results));
+    // console.log('REGISTRO INSERIDO NO BANCO COM SUCESSO: ' + JSON.stringify(results));
   });
 }
 
 /* injetando objetos de internação e de alta (robô Gesthos >> api Pulsar), salvando no banco de dados
 Pulsar os novos resgistros.
 */
+let objetos = [];
+const trataAtendimentos = () => {
+  // mapeando os objetos sortidos por data e verificando se os mesmos já estão registrados no banco de dados.
+  objetos.sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).map(item => {
+    // console.log(objetos.sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).map(item => moment(item.data).format('DD/MM/YYYY HH:mm')));
+    // retornando todos os registros de atendimento no banco de dados.
+    var sql = "SELECT * FROM gesthos_atendimento";
+    pool.query(sql, (error, results) => {
+      // if (error) return console.log('ERRO AO RETORNAR REGISTROS DE ATENDIMENTO'));
+      let db_atendimentos = results.rows;
+      /* 
+      SITUAÇÃO 1:
+      o objeto é uma internação,
+      o objeto não tem registro prévio de atendimento no banco de dados,
+      o objeto não tem um objeto de alta concorrente (mesmo atendimento) posterior.
+      */
+      if (item.situacao == 'internacao' &&
+        db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length == 0 &&
+        objetos.filter(valor =>
+          valor.situacao == 'alta' &&
+          valor.atendimento == item.atendimento &&
+          moment(valor.data) > moment(item.data)).length == 0
+      ) {
+        insertAtendimento(item);
+        /*
+        SITUAÇÃO 2:
+        o objeto é uma alta,
+        o objeto tem registro prévio de atendimento no banco de dados,
+        o objeto tem um objeto de internação concorrente (mesmo atendimento) posterior.
+        */
+      } else if (item.situacao == 'alta' &&
+        db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length > 0 &&
+        objetos.filter(valor =>
+          valor.situacao == 'internacao' &&
+          valor.atendimento == item.atendimento &&
+          moment(valor.data) > moment(item.data)).length > 0
+      ) {
+        deleteAtendimento(item);
+        insertAtendimento(item);
+        /*
+        SITUAÇÃO 3:
+        o objeto é uma alta,
+        o objeto tem registro prévio de atendimento no banco de dados,
+        o objeto não tem um objeto de internação concorrente (mesmo atendimento) posterior.
+        */
+      } else if (item.situacao == 'alta' &&
+        db_atendimentos.filter(valor => valor.atendimento == item.atendimento).length > 0 &&
+        objetos.filter(valor =>
+          valor.situacao == 'internacao' &&
+          valor.atendimento == item.atendimento &&
+          moment(valor.data) > moment(item.data)).length == 0
+      ) {
+        deleteAtendimento(item);
+      } else {
+        console.log('NADA A SER FEITO')
+      }
+    });
+  });
+}
 app.post("/gesthos_atendimentos", (req, res) => {
   atendimentos = req.body;
-  console.log(atendimentos);
+  objetos = [];
   if (atendimentos == [] || atendimentos == null || atendimentos == undefined || atendimentos == '') {
-    console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
     res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: atendimentos });
   } else {
-    let internados = [];
-    arrayinternados = [];
-    internados = atendimentos.pacientes;
-    internados.map(item => arrayinternados.push(item));
-    res.send('SUCESSO');
-    // atualizando banco de dados.
-    arrayinternados.filter(item => item.hasOwnProperty('internacao') == true).map(item => checkAtendimentoInternacao(item.internacao));
-    arrayinternados.filter(item => item.hasOwnProperty('alta') == true).map(item => checkAtendimentoAlta(item.alta));
+    let resposta = [];
+    resposta = atendimentos.pacientes;
+
+    const createObjInternacao = (item) => {
+      var obj = {
+        'situacao': 'internacao',
+        'data': moment(item.data + ' ' + item.hora, 'DD/MM/YYYY HH:mm:ss'),
+        'prontuario': item.prontuario,
+        'atendimento': item.atendimento,
+        'paciente': item.paciente,
+        'sexo': item.sexo,
+        'nascimento': item.nascimento,
+        'unidadeinternacao': item.unidadeinternacao,
+        'leito': item.leito,
+      }
+      objetos.push(obj);
+    }
+    const createObjAlta = (item) => {
+      var obj = {
+        'situacao': 'alta',
+        'data': moment(item.data + ' ' + item.hora, 'DD/MM/YYYY HH:mm:ss'),
+        'prontuario': item.prontuario,
+        'atendimento': item.atendimento,
+        'paciente': item.paciente,
+        'sexo': item.sexo,
+        'nascimento': item.nascimento,
+        'unidadeinternacao': item.unidadeinternacao,
+        'leito': item.leito,
+      }
+      objetos.push(obj);
+    }
+
+    resposta.filter(item => item.hasOwnProperty("internacao") == true).map(item => createObjInternacao(item.internacao));
+    resposta.filter(item => item.hasOwnProperty("alta") == true).map(item => createObjAlta(item.alta));
+    trataAtendimentos();
   }
 });
 
@@ -1941,9 +1992,7 @@ mesmos no banco de dados Pulsar.
 app.post("/gesthos_assistencial", (req, res) => {
   arrayassistencial = [];
   assistenciais = req.body;
-  console.log(assistenciais);
   if (assistenciais == [] || assistenciais == null || assistenciais == undefined || assistenciais == '') {
-    console.log('SEM DADOS ENVIADOS PELO BOT GESTHOS');
     res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
   } else {
     let dados_assistenciais = [];
@@ -1956,3 +2005,16 @@ app.post("/gesthos_assistencial", (req, res) => {
     arrayassistencial.filter(item => item.hasOwnProperty('exame') == true).map(item => insertRegistroAssistencial(item.exame));
   }
 });
+
+// deletando registros assistenciais antigos do banco de dados.
+const limpaBanco = () => {
+  var sql = "DELETE FROM gesthos_assistencial WHERE TO_DATE(data,'DD/MM/YYYY') < CURRENT_DATE - INTERVAL '3' DAY";
+  pool.query(sql, [], (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
+    res.send(results);
+  });
+}
+
+setInterval(() => {
+  limpaBanco;
+}, 3600000);
