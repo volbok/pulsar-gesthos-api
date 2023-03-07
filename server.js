@@ -1815,7 +1815,7 @@ const insertAtendimento = (obj) => {
     pool.query(sql, (error, results) => {
       let pacientes = results.rows;
       if (pacientes.filter(item => item.prontuario == obj.prontuario).length == 0) {
-        inserePaciente(obj);
+        // inserePaciente(obj);
       } else {
         console.log('PACIENTE JÁ TEM CADASTRO');
       }
@@ -1880,6 +1880,10 @@ const insertRegistroAssistencial = (obj) => {
 Pulsar os novos resgistros.
 */
 let objetos = [];
+let arrayInsertAtendimento = [];
+let arrayDeleteAtendimento = [];
+let arrayInsertPaciente = [];
+
 const trataAtendimentos = () => {
   // mapeando os objetos sortidos por data e verificando se os mesmos já estão registrados no banco de dados.
   objetos.sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).map(item => {
@@ -1915,6 +1919,7 @@ const trataAtendimentos = () => {
           valor.atendimento == item.atendimento &&
           moment(valor.data) > moment(item.data)).length > 0
       ) {
+        arrayDeleteAtendimento
         deleteAtendimento(item);
         /*
         SITUAÇÃO 3:
