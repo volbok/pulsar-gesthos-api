@@ -118,7 +118,7 @@ A API criada no ambiente Pulsar (API Pulsar) declara a endpoint http://pulsar-ge
 
 Os objetos retornados são aninhados com as propriedades credenciais e pacientes no primeiro nível, e os objetos de atendimento propriamente ditos estão na array contida na propriedade pacientes. Cada objeto da array, por sua vez, está aninhado nas propriedades de internação ou de alta. Observe o JSON abaixo:
 
-```json
+```js
 {
   credenciais: {
     empresa: "13.025.354/0001-32",
@@ -156,7 +156,7 @@ Os objetos retornados são aninhados com as propriedades credenciais e pacientes
 };
 ```
 
-Este aninhamento complexo do JSON exigiu a criação de uma função capaz de modificar cada objeto recebido, incluindo as propriedades de situação (internação ou alta) e de data como timestamp (essencial para que fosse possível aplicar o .sort() na nova array de objetos).
+Este aninhamento complexo do JSON exigiu a criação de funções capaz de modificar cada objeto recebido (**createObjInternacao** e **createObjAlta**), incluindo as propriedades de situação (internação ou alta) e de data como timestamp (essencial para que fosse possível aplicar o .sort() na nova array de objetos).
 
 ```js
 const createObjInternacao = (item) => {
@@ -173,7 +173,20 @@ const createObjInternacao = (item) => {
   };
   objetos.push(obj);
 };
-
+const createObjAlta = (item) => {
+  var obj = {
+    situacao: "alta",
+    data: moment(item.data + " " + item.hora, "DD/MM/YYYY HH:mm:ss"),
+    prontuario: item.prontuario,
+    atendimento: item.atendimento,
+    paciente: item.paciente,
+    sexo: item.sexo,
+    nascimento: item.nascimento,
+    unidadeinternacao: item.unidadeinternacao,
+    leito: item.leito,
+  };
+  objetos.push(obj);
+};
 resposta
   .filter((item) => item.hasOwnProperty("internacao") == true)
   .map((item) => createObjInternacao(item.internacao));
@@ -183,12 +196,11 @@ resposta
 trataAtendimentos();
 ```
 
-No código acima, resposta corresponde ao JSON recebido do robô Gesthos, já mapeado para a propriedade pacientes. As funções createObjInternacao e createObjAlta criam os objetos "aperfeiçoados" mencionados acima. Estes, por sua vez, são sortidos em ordem crescente de data, e logo em seguida a função trataAtendimentos() é chamada, mapeando esta nova array de objetos.
+No código acima, resposta corresponde ao JSON recebido do robô Gesthos, já mapeado para a propriedade pacientes. As funções **createObjInternacao** e **createObjAlta** criam os objetos "aperfeiçoados" mencionados acima. Estes, por sua vez, são sortidos em ordem crescente de data, e logo em seguida a função **trataAtendimentos()** é chamada, mapeando esta nova array de objetos.
 
-Sortir os novos objetos por ordem crescente de data é FUNDAMENTAL para o correto registro e exclusão de atendimentos no banco de dados Pulsar, como demonstrado abaixo:
+Sortir os novos objetos por ordem crescente de data é FUNDAMENTAL para o correto registro e exclusão de atendimentos no banco de dados Pulsar, como demonstrado na função trataAtendimentos() abaixo:
 
 ```js
-let objetos = [];
 const trataAtendimentos = () => {
   // mapeando os objetos sortidos por data e verificando se os mesmos já estão registrados no banco de dados.
   objetos
@@ -198,7 +210,7 @@ const trataAtendimentos = () => {
       // retornando todos os registros de atendimento no banco de dados.
       var sql = "SELECT * FROM gesthos_atendimento";
       pool.query(sql, (error, results) => {
-        let db_atendimentos = results.rows;
+        db_atendimentos = results.rows;
         /* 
       SITUAÇÃO 1:
       o objeto é uma internação,
@@ -259,25 +271,6 @@ const trataAtendimentos = () => {
           /*
         SITUAÇÃO 4:
         o objeto é uma alta,
-        o objeto não tem registro prévio de atendimento no banco de dados,
-        o objeto tem um objeto de internação concorrente (mesmo atendimento) posterior.
-        */
-        } else if (
-          item.situacao == "alta" &&
-          db_atendimentos.filter(
-            (valor) => valor.atendimento == item.atendimento
-          ).length == 0 &&
-          objetos.filter(
-            (valor) =>
-              valor.situacao == "internacao" &&
-              valor.atendimento == item.atendimento &&
-              moment(valor.data) > moment(item.data)
-          ).length > 0
-        ) {
-          insertAtendimento(item);
-          /*
-        SITUAÇÃO 5:
-        o objeto é uma alta,
         o objeto tem registro prévio de atendimento no banco de dados,
         o objeto tem um objeto de internação concorrente (mesmo atendimento) posterior.
         */
@@ -293,8 +286,17 @@ const trataAtendimentos = () => {
               moment(valor.data) > moment(item.data)
           ).length > 0
         ) {
+          let concorrente = objetos
+            .filter(
+              (valor) =>
+                valor.situacao == "internacao" &&
+                valor.atendimento == item.atendimento &&
+                moment(valor.data) > moment(item.data)
+            )
+            .pop();
+          console.log(concorrente);
           deleteAtendimento(item);
-          insertAtendimento(item);
+          insertAtendimento(concorrente);
         } else {
           console.log("NADA A SER FEITO");
         }
@@ -303,15 +305,14 @@ const trataAtendimentos = () => {
 };
 ```
 
-Como o robô gestHos envia apenas novos objetos de internação ou de alta, faz-se necessário que, a cada consumo da endpoint http://pulsar-gesthos-api.up.railway.app/gesthos_atendimentos, estes objetos sejam devidamente tratados e armazenados no banco de dados do Pulsar.
-
-Este trabalho é feito pela valiosa função trataAtendimentos() que executa as seguintes tarefas:
+A função **trataAtendimentos()** executa as seguintes tarefas:
 
 - Em cada map, recupera primeiro todos os registros de atendimento no banco de dados Pulsar.
 - Verifica se o objeto mapeado está em situação de internação ou de alta.
 - Verifica se o objeto mapeado tem algum registro correspondente no recém-verificado banco de dados Pulsar (registro de internação previamente armazenado, com o mesmo código de atendimento).
-- Verifica se há algum outro objeto aperfeiçoado concorrente (objeto de internação ou de alta, com mesmo número de atendimento e data posterior).
-  Após a definição dessas condições, é seguido o seguinte algoritmo:
+- Verifica se há algum outro "objeto aperfeiçoado" concorrente (objeto de internação ou de alta, com mesmo número de atendimento e data posterior).
+
+Após a definição dessas condições, é seguido o seguinte algoritmo:
 
 <h4>SITUAÇÃO 01:</h4>
 
@@ -370,8 +371,10 @@ Este trabalho é feito pela valiosa função trataAtendimentos() que executa as 
 4. Ação: deleta o registro com mesmo código de atendimento e insere o objeto concorrente como registro de internação no banco de dados Pulsar.
 
 As imagens abaixo facilitam o entendimento do algoritmo descrito acima:
-![Probabilidades para objetos de internação](../api/images/probabilidades_internacao.jpeg)
-![Probabilidades para objetos de internação](../api/images/probabilidades_alta.jpeg)
+
+![Probabilidades para objetos de internação](/images/probabilidades_internacao.jpeg)
+
+![Probabilidades para objetos de alta](/images/probabilidades_alta.jpeg)
 
 <h3>ASSISTENCIAL</h3>
 
