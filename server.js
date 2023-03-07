@@ -1782,8 +1782,8 @@ const inserePaciente = (obj) => {
     null,
     null,
   ], (error, results) => {
-    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
-    res.send(results);
+    if (error) return console.log('ERRO AO TENTAR REGISTRAR PACIENTE0');
+    console.log('REGISTRO DE PACIENTE REALIZADO COM SUCESSO');
   });
 }
 
@@ -1791,7 +1791,6 @@ const inserePaciente = (obj) => {
 const deleteAtendimento = (obj) => {
   var sql = "DELETE FROM gesthos_atendimento WHERE atendimento = $1";
   pool.query(sql, [obj.atendimento], (error, results) => {
-    // if (error) return console.log('ERRO AO TENTAR DELETAR REGISTRO DE ATENDIMENTO');
     console.log('REGISTRO DE ATENDIMENTO DELETADO COM SUCESSO');
   });
 }
@@ -1809,16 +1808,14 @@ const insertAtendimento = (obj) => {
     null,
     null
   ], (error, results) => {
-    // if (error) return console.log('ERRO AO TENTAR INSERIR REGISTRO DE ATENDIMENTO');
     console.log('REGISTRO DE ATENDIMENTO INSERIDO NO BANCO COM SUCESSO');
     /* verificando se o paciente referente ao atendimento recém-criado já tem registro na tabela
     gesthos_pacientes (necessária para registro dos dados da anamnese). */
     var sql = "SELECT * FROM gesthos_pacientes";
     pool.query(sql, (error, results) => {
-      // if (error) return console.log('ERRO AO RETORNAR REGISTROS DE ATENDIMENTOS');
       let pacientes = results.rows;
       if (pacientes.filter(item => item.prontuario == obj.prontuario).length == 0) {
-        // inserePaciente(obj);
+        inserePaciente(obj);
       } else {
         console.log('PACIENTE JÁ TEM CADASTRO');
       }
@@ -1890,7 +1887,6 @@ const trataAtendimentos = () => {
     // retornando todos os registros de atendimento no banco de dados.
     var sql = "SELECT * FROM gesthos_atendimento";
     pool.query(sql, (error, results) => {
-      // if (error) return console.log('ERRO AO RETORNAR REGISTROS DE ATENDIMENTO'));
       let db_atendimentos = results.rows;
       /* 
       SITUAÇÃO 1:
