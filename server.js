@@ -2040,5 +2040,5 @@ const limpaBanco = () => {
 }
 
 setInterval(() => {
-  limpaBanco;
+  // limpaBanco;
 }, 3600000);
