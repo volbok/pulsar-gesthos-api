@@ -10,6 +10,10 @@ const { request } = require("express");
 const app = express();
 const PORT = process.env.PORT || 3333;
 
+// fixing "413 Request Entity Too Large" errors
+app.use(express.json({limit: "30mb", extended: true}))
+app.use(express.urlencoded({limit: "30mb", extended: true, parameterLimit: 50000}))
+
 app.use(cors());
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -2039,6 +2043,8 @@ const limpaBanco = () => {
   });
 }
 
+/*
 setInterval(() => {
   // limpaBanco;
-}, 3600000);
+}, 2,592e+8);
+*/
