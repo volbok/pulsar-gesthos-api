@@ -12,8 +12,8 @@ const PORT = process.env.PORT || 3333;
 var iconv = require('iconv-lite');
 
 // fixing "413 Request Entity Too Large" errors
-app.use(express.json({limit: "30mb", extended: true}))
-app.use(express.urlencoded({limit: "30mb", extended: true, parameterLimit: 50000}))
+app.use(express.json({ limit: "30mb", extended: true }))
+app.use(express.urlencoded({ limit: "30mb", extended: true, parameterLimit: 50000 }))
 
 app.use(cors());
 app.use(function (req, res, next) {
@@ -2023,7 +2023,7 @@ injetando objetos de dados assistenciais (robô Gesthos >> api Pulsar), com grav
 mesmos no banco de dados Pulsar.
 */
 
-var fs = require ("fs");
+var fs = require("fs");
 app.post("/gesthos_assistencial", (req, res) => {
   arrayassistencial = [];
   assistenciais = req.body;
@@ -2043,15 +2043,17 @@ app.post("/gesthos_assistencial", (req, res) => {
 
 // deletando registros assistenciais antigos do banco de dados.
 const limpaBanco = () => {
-  var sql = "DELETE FROM gesthos_assistencial WHERE TO_DATE(data,'DD/MM/YYYY') < CURRENT_DATE - INTERVAL '3' DAY";
-  pool.query(sql, [], (error, results) => {
-    if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
-    res.send(results);
+  var sql = "DELETE FROM gesthos_assistencial WHERE (grupo = '01 - GRUPO DADOS VITAIS E CONTROLES' OR grupo = '08 - ANTIBIOTICOS, CULTURAS E EXAMES') AND TO_DATE(data,'DD/MM/YYYY') < CURRENT_DATE - INTERVAL '1' DAY";
+  pool.query(sql, (error, results) => {
+    if (error) return ('ERRO: ' + error);
+    console.log(x == [] ? 'NADA A EXCLUIR' : 'EXCLUÍDOS ' + x);
   });
 }
 
-/*
 setInterval(() => {
-  // limpaBanco;
-}, 2,592e+8);
-*/
+  var sql = "SELECT * FROM gesthos_assistencial";
+  pool.query(sql, (error, results) => {
+    if (error) return ('ERRO: ' + error);
+    limpaBanco();
+  });
+}, 300000); // 5 minutos.
