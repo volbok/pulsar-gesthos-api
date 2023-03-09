@@ -9,6 +9,7 @@ var cors = require("cors");
 const { request } = require("express");
 const app = express();
 const PORT = process.env.PORT || 3333;
+var iconv = require('iconv-lite');
 
 // fixing "413 Request Entity Too Large" errors
 app.use(express.json({limit: "30mb", extended: true}))
@@ -31,6 +32,8 @@ app.use(
     extended: true,
   })
 );
+
+// app.use(headers.append('Content-Type', 'application/json; charset=utf-8'));
 
 app.get("/", (request, response) => {
   response.json({
@@ -1865,6 +1868,8 @@ app.post("/update_gesthos_atendimento/:id", (req, res) => {
 // função que insere objeto de registro assistencial no banco de dados Pulsar.
 const insertRegistroAssistencial = (obj) => {
   // console.log('INSERINDO REGISTRO ASSISTENCIAL...');
+  var isovalor = obj.valor;
+  var utfvalor = iconv.decode(Buffer.from(isovalor), 'ISO-8859-1');
   var sql = "INSERT INTO gesthos_assistencial (data, hora, prontuario, atendimento, grupo, item, valor) VALUES ($1, $2, $3, $4, $5, $6, $7)"
   pool.query(sql, [
     obj.data,
@@ -1873,7 +1878,7 @@ const insertRegistroAssistencial = (obj) => {
     obj.atendimento,
     obj.grupo,
     obj.item,
-    obj.valor
+    utfvalor
   ], (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO DE CONEXÃO.' });
     // console.log('REGISTRO INSERIDO NO BANCO COM SUCESSO: ' + JSON.stringify(results));
@@ -2017,6 +2022,8 @@ app.post("/gesthos_atendimentos", (req, res) => {
 injetando objetos de dados assistenciais (robô Gesthos >> api Pulsar), com gravação dos
 mesmos no banco de dados Pulsar.
 */
+
+var fs = require ("fs");
 app.post("/gesthos_assistencial", (req, res) => {
   arrayassistencial = [];
   assistenciais = req.body;
