@@ -2046,7 +2046,7 @@ const limpaBanco = () => {
   var sql = "DELETE FROM gesthos_assistencial WHERE (grupo = '01 - GRUPO DADOS VITAIS E CONTROLES' OR grupo = '08 - ANTIBIOTICOS, CULTURAS E EXAMES') AND TO_DATE(data,'DD/MM/YYYY') < CURRENT_DATE - INTERVAL '1' DAY";
   pool.query(sql, (error, results) => {
     if (error) return ('ERRO: ' + error);
-    console.log(x == [] ? 'NADA A EXCLUIR' : 'EXCLUÍDOS ' + x);
+    console.log('LIMPANDO BANCO DE DADOS.');
   });
 }
 
