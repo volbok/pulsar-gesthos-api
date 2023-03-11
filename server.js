@@ -1869,7 +1869,7 @@ app.post("/update_gesthos_atendimento/:id", (req, res) => {
 const insertRegistroAssistencial = (obj) => {
   // console.log('INSERINDO REGISTRO ASSISTENCIAL...');
   var isovalor = obj.valor;
-  var utfvalor = iconv.decode(Buffer.from(isovalor), 'ISO-8859-1');
+  var utfvalor = iconv.decode(Buffer.from(isovalor), 'UTF-8');
   var sql = "INSERT INTO gesthos_assistencial (data, hora, prontuario, atendimento, grupo, item, valor) VALUES ($1, $2, $3, $4, $5, $6, $7)"
   pool.query(sql, [
     obj.data,
