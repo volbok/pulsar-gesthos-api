@@ -1813,8 +1813,9 @@ const insertAtendimento = (obj) => {
     obj.unidadeinternacao,
     obj.leito,
     null,
-    null
+    obj.situacao
   ], (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO');
     console.log('REGISTRO DE ATENDIMENTO INSERIDO NO BANCO COM SUCESSO');
     /* verificando se o paciente referente ao atendimento recém-criado já tem registro na tabela
     gesthos_pacientes (necessária para registro dos dados da anamnese). */
@@ -1869,7 +1870,7 @@ app.post("/update_gesthos_atendimento/:id", (req, res) => {
 const insertRegistroAssistencial = (obj) => {
   // console.log('INSERINDO REGISTRO ASSISTENCIAL...');
   var isovalor = obj.valor;
-  var utfvalor = iconv.decode(Buffer.from(isovalor), 'UTF-8');
+  var utfvalor = iconv.decode(Buffer.from(isovalor), 'ANSII');
   var sql = "INSERT INTO gesthos_assistencial (data, hora, prontuario, atendimento, grupo, item, valor) VALUES ($1, $2, $3, $4, $5, $6, $7)"
   pool.query(sql, [
     obj.data,
@@ -1898,7 +1899,7 @@ const carregaBanco = () => {
   });
 }
 
-const trataAtendimentos = () => {
+const trataAtendimentosAntigo = () => {
   // mapeando os objetos sortidos por data e verificando se os mesmos já estão registrados no banco de dados.
   objetos.sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).map(item => {
     // console.log(objetos.sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).map(item => moment(item.data).format('DD/MM/YYYY HH:mm')));
@@ -1970,6 +1971,13 @@ const trataAtendimentos = () => {
         console.log('NADA A SER FEITO')
       }
     });
+  });
+}
+
+const trataAtendimentos = () => {
+  // mapeando os objetos sortidos por data e verificando se os mesmos já estão registrados no banco de dados.
+  objetos.sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).map(item => {
+    insertAtendimento(item);
   });
 }
 
