@@ -1869,8 +1869,8 @@ app.post("/update_gesthos_atendimento/:id", (req, res) => {
 // função que insere objeto de registro assistencial no banco de dados Pulsar.
 const insertRegistroAssistencial = (obj) => {
   // console.log('INSERINDO REGISTRO ASSISTENCIAL...');
-  var isovalor = obj.valor;
-  var utfvalor = iconv.decode(Buffer.from(isovalor), 'ANSII');
+  var winvalor = iconv.encode(obj.valor, 'windows-1252');
+  var utfvalor = iconv.decode(Buffer.from(winvalor), 'UTF-8');
   var sql = "INSERT INTO gesthos_assistencial (data, hora, prontuario, atendimento, grupo, item, valor) VALUES ($1, $2, $3, $4, $5, $6, $7)"
   pool.query(sql, [
     obj.data,
