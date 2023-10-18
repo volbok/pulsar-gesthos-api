@@ -2338,7 +2338,7 @@ app.post("/update_examecomplementar/:id_exame", (req, res) => {
     data_exame,
     id_usuario,
   } = req.body;
-  var sql = "UPDATE atendimento_propostas SET id_atendimento = $1, exame = $2, data_exame = $3, id_usuario = $4 WHERE id_exame = $5";
+  var sql = "UPDATE atendimento_exames SET id_atendimento = $1, exame = $2, data_exame = $3, id_usuario = $4 WHERE id_exame = $5";
   pool.query(sql, [
     id_atendimento,
     exame,
