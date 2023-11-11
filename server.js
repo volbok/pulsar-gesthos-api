@@ -1803,6 +1803,35 @@ app.get("/lista_assistencial/:atendimento", (req, res) => {
   });
 });
 
+// atualizar registro assistencial (lista de problemas, anamnese).
+// atualizar item de opção de prescrição.
+app.post("/update_assistencial/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const {
+    data,
+    hora,
+    prontuario,
+    atendimento,
+    grupo,
+    item,
+    valor
+  } = req.body;
+  var sql = "UPDATE gesthos_assistencial SET data = $1, hora = $2, prontuario = $3, atendimento = $4, grupo = $5, item = $6, valor = $7 WHERE id = $8";
+  pool.query(sql, [
+    data,
+    hora,
+    prontuario,
+    atendimento,
+    grupo,
+    item,
+    valor,
+    id,
+  ], (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO AO ATUALIZAR DADOS.' });
+    res.send(results);
+  });
+});
+
 // função que insere no banco de dados Pulsar um registro de paciente, caso inexistente.
 const inserePaciente = (obj) => {
   var sql = "INSERT INTO gesthos_pacientes (prontuario, paciente, antecedentes_pessoais, medicacoes_previas, exames_previos, exames_atuais) VALUES ($1, $2, $3, $4, $5, $6)"
@@ -2249,6 +2278,78 @@ const deletePrescricoes = () => {
   });
 };
 
+const limpaBanco = () => {
+  var sql = null;
+  sql = "TRUNCATE atendimento_antibioticos";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_culturas";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_dietas";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_evolucoes";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_exames";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_hd";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_infusoes";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_interconsultas";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_invasoes";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_prescricoes";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_propostas";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_sinais_vitais";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE atendimento_vm";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE gesthos_assistencial";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE gesthos_atendimento";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE gesthos_pacientes";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+  sql = "TRUNCATE gesthos_prescricao";
+  pool.query(sql, (error, results) => {
+    if (error) return console.log('ERRO AO CADASTRAR OBJETO DE INTERNAÇÃO: ' + error);
+  });
+}
+
 // atualizando obgesthos.
 app.post("/update_prescricoes/:id", (req, res) => {
   const id = parseInt(req.params.id);
@@ -2296,6 +2397,9 @@ app.post("/update_prescricoes/:id", (req, res) => {
 setInterval(() => {
   deletePrescricoes();
   console.log('LIMPANDO REGISTROS DE PRESCRIÇÕES ANTIGAS');
+  // ## !!! PERIGO !!! ##
+  // função para LIMPAR TODOS OS REGISTROS DE TODAS AS TABELAS DO BANCO DE DADOS.
+  // limpaBanco();
 }, 3600000);
 
 // ATENDIMENTOS - EXAMES COMPLEMENTARES.
