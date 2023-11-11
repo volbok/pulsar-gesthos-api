@@ -1814,9 +1814,10 @@ app.post("/update_assistencial/:id", (req, res) => {
     atendimento,
     grupo,
     item,
-    valor
+    valor,
+    editado,
   } = req.body;
-  var sql = "UPDATE gesthos_assistencial SET data = $1, hora = $2, prontuario = $3, atendimento = $4, grupo = $5, item = $6, valor = $7 WHERE id = $8";
+  var sql = "UPDATE gesthos_assistencial SET data = $1, hora = $2, prontuario = $3, atendimento = $4, grupo = $5, item = $6, valor = $7, editado = $8 WHERE id = $9";
   pool.query(sql, [
     data,
     hora,
@@ -1825,6 +1826,7 @@ app.post("/update_assistencial/:id", (req, res) => {
     grupo,
     item,
     valor,
+    editado,
     id,
   ], (error, results) => {
     if (error) return res.json({ success: false, message: 'ERRO AO ATUALIZAR DADOS.' });
