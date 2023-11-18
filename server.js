@@ -1815,7 +1815,7 @@ app.post("/insert_assistencial", (req, res) => {
     valor,
     editado,
   } = req.body;
-  var sql = "INSERT gesthos_assistencial SET data = $1, hora = $2, prontuario = $3, atendimento = $4, grupo = $5, item = $6, valor = $7, editado = $8";
+  var sql = "INSERT INTO gesthos_assistencial (data, hora, prontuario, atendimento, grupo, item, valor, editado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)";
   pool.query(sql, [
     data,
     hora,
