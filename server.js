@@ -1804,7 +1804,7 @@ app.get("/lista_assistencial/:atendimento", (req, res) => {
 });
 
 // inserir registro assistencial (lista de problemas, anamnese).
-app.post("/insert_assistencial/:id", (req, res) => {
+app.post("/insert_assistencial", (req, res) => {
   const {
     data,
     hora,
