@@ -1803,8 +1803,36 @@ app.get("/lista_assistencial/:atendimento", (req, res) => {
   });
 });
 
+// inserir registro assistencial (lista de problemas, anamnese).
+app.post("/insert_assistencial/:id", (req, res) => {
+  const {
+    data,
+    hora,
+    prontuario,
+    atendimento,
+    grupo,
+    item,
+    valor,
+    editado,
+  } = req.body;
+  var sql = "INSERT gesthos_assistencial SET data = $1, hora = $2, prontuario = $3, atendimento = $4, grupo = $5, item = $6, valor = $7, editado = $8";
+  pool.query(sql, [
+    data,
+    hora,
+    prontuario,
+    atendimento,
+    grupo,
+    item,
+    valor,
+    editado,
+  ], (error, results) => {
+    if (error) return res.json({ success: false, message: 'ERRO AO ATUALIZAR DADOS.' });
+    res.send(results);
+  });
+});
+
+
 // atualizar registro assistencial (lista de problemas, anamnese).
-// atualizar item de opção de prescrição.
 app.post("/update_assistencial/:id", (req, res) => {
   const id = parseInt(req.params.id);
   const {
