@@ -2081,7 +2081,8 @@ let obgesthos = [];
 app.get("/catchdata/:moment", (req, res) => {
   obgesthos = [];
   const moment = req.params.moment;
-  var sql = "SELECT * FROM obgesthos WHERE TO_TIMESTAMP(moment,'DD/MM/YYYY - HH24:MI:SS') >= TO_TIMESTAMP($1,'DD/MM/YYYY - HH24:MI:SS')"
+  // var sql = "SELECT * FROM obgesthos WHERE TO_TIMESTAMP(moment,'DD/MM/YYYY - HH24:MI:SS') >= TO_TIMESTAMP($1,'DD/MM/YYYY - HH24:MI:SS')"
+  var sql = "SELECT * FROM obgesthos"
   pool.query(sql, [moment], (error, results) => {
     if (error) return res.json({ success: false, message: error });
     let array = results.rows;
