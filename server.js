@@ -2039,11 +2039,13 @@ app.post("/txt_atendimento", (req, res) => {
 
 app.post("/txt_assistencial", (req, res) => {
   res.send('SUCESSO');
-  let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
-  let obj = JSON.parse(string);
+  // let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
+  // let obj = JSON.parse(string);
   arrayassistencial = [];
-
-  assistenciais = JSON.parse(obj);
+  
+  // assistenciais = JSON.parse(obj);
+  assistenciais = req.body;
+  
   if (assistenciais == '' || assistenciais == null || assistenciais == undefined || assistenciais == '') {
     res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
   } else {

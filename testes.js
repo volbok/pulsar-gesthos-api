@@ -1,7 +1,7 @@
 const axios = require("axios");
 
-// let html = "https://pulsar-gesthos-api.up.railway.app/";
-let html = "http://localhost:3333/";
+let html = "https://pulsar-gesthos-api.up.railway.app/";
+// let html = "http://localhost:3333/";
 
 const criandoJsonAtendimento = () => {
   console.log("ENVIADO ARRAY COM JSONS");
