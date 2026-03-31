@@ -4,23 +4,6 @@ const jwt = require('jsonwebtoken');
 const moment = require("moment");
 
 const express = require("express");
-
-/*
-function pegaRaw(req, res, next) {
-  console.log('CARREGA MIDDLEWARE');
-  req.rawBody = '';
-
-  req.on('data', function(chunk) { 
-    req.rawBody += chunk;
-  });
-
-  req.on('end', function() {
-    next();
-  });
-  res.send(req.rawBody);
-};
-*/
-
 const bodyParser = require("body-parser");
 var cors = require("cors");
 const { request } = require("express");
@@ -1996,11 +1979,17 @@ const trataAtendimentos = () => {
 
 app.post("/txt_atendimento", (req, res) => {
   res.send('SUCESSO');
-  console.log('TEXTO RECEBIDO: ' + iconv.decode(Buffer.from(req.body), 'utf8'));
-  let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
-  let obj = JSON.parse(string);
-
-  atendimentos = JSON.parse(obj);
+  console.log(req.body);
+  
+  // FORMA COMPLICADA (GESTHOS TRAZ STRINGS EM UTF-8, COM ERROS DE CARACTERES).
+  // console.log('TEXTO RECEBIDO: ' + iconv.decode(Buffer.from(req.body), 'utf8'));
+  // let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
+  // let obj = JSON.parse(string);
+  // atendimentos = JSON.parse(obj);
+  
+  // FORMA SIMPLIFICADA (SEM USAR BUFFER E CONVERSÕES PARA UTF 8).
+  let atendimentos = req.body;
+  
   objetos = [];
   if (atendimentos == [] || atendimentos == null || atendimentos == undefined || atendimentos == '') {
     res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: atendimentos });
