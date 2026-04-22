@@ -1982,13 +1982,13 @@ app.post("/txt_atendimento", (req, res) => {
   console.log(req.body);
   
   // FORMA COMPLICADA (GESTHOS TRAZ STRINGS EM UTF-8, COM ERROS DE CARACTERES).
-  // console.log('TEXTO RECEBIDO: ' + iconv.decode(Buffer.from(req.body), 'utf8'));
-  // let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
-  // let obj = JSON.parse(string);
-  // atendimentos = JSON.parse(obj);
+  console.log('TEXTO RECEBIDO: ' + iconv.decode(Buffer.from(req.body), 'utf8'));
+  let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
+  let obj = JSON.parse(string);
+  atendimentos = JSON.parse(obj);
   
   // FORMA SIMPLIFICADA (SEM USAR BUFFER E CONVERSÕES PARA UTF 8).
-  let atendimentos = req.body;
+  // let atendimentos = req.body;
   
   objetos = [];
   if (atendimentos == [] || atendimentos == null || atendimentos == undefined || atendimentos == '') {
@@ -2039,12 +2039,12 @@ app.post("/txt_atendimento", (req, res) => {
 
 app.post("/txt_assistencial", (req, res) => {
   res.send('SUCESSO');
-  // let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
-  // let obj = JSON.parse(string);
+  let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
+  let obj = JSON.parse(string);
   arrayassistencial = [];
   
-  // assistenciais = JSON.parse(obj);
-  assistenciais = req.body;
+  assistenciais = JSON.parse(obj);
+  // assistenciais = req.body;
   
   if (assistenciais == '' || assistenciais == null || assistenciais == undefined || assistenciais == '') {
     res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });

@@ -93,5 +93,5 @@ const criandoJsonAssistencial = () => {
 //setInterval(() => {
 console.log('CRIANDO DADOS DE TESTE.');
 criandoJsonAtendimento();
-// criandoJsonAssistencial();
+criandoJsonAssistencial();
 //}, 2000);
