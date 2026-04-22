@@ -2039,10 +2039,10 @@ app.post("/txt_atendimento", (req, res) => {
 
 app.post("/txt_assistencial", (req, res) => {
   res.send('SUCESSO');
+  console.log(req.body);
   let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
   let obj = JSON.parse(string);
   arrayassistencial = [];
-  
   assistenciais = JSON.parse(obj);
   // assistenciais = req.body;
   
