@@ -1984,7 +1984,8 @@ app.post("/txt_atendimento", (req, res) => {
   // FORMA COMPLICADA (GESTHOS TRAZ STRINGS EM UTF-8, COM ERROS DE CARACTERES).
   console.log('TEXTO RECEBIDO: ' + iconv.decode(Buffer.from(req.body), 'utf8'));
   let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
-  let obj = JSON.parse(string);
+  let fixedstring = string.replace(/\n/g, "\\n"); // corrige eventuais quebras de linha que quebram o JSON ao ser parseado.
+  let obj = JSON.parse(fixedstring);
   atendimentos = JSON.parse(obj);
   
   // FORMA SIMPLIFICADA (SEM USAR BUFFER E CONVERSÕES PARA UTF 8).
