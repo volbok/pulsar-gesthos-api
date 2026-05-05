@@ -1980,17 +1980,50 @@ const trataAtendimentos = () => {
 app.post("/txt_atendimento", (req, res) => {
   res.send('SUCESSO');
   console.log(req.body);
-  
+
+  // função para corrigir quebras de linha em JSON defeituoso:
+  function sanitizeBrokenJson(raw) {
+    let result = '';
+    let inString = false;
+    let escaped = false;
+
+    for (let i = 0; i < raw.length; i++) {
+      let char = raw[i];
+      // alterna estado de string
+      if (char === '"' && !escaped) {
+        inString = !inString;
+      }
+      if (inString) {
+        // corrige caracteres proibidos dentro de string
+        if (char === '\n') char = '\\n';
+        else if (char === '\r') char = '\\r';
+        else if (char === '\t') char = '\\t';
+        else if (char.charCodeAt(0) < 32) {
+          // remove outros control chars invisíveis
+          continue;
+        }
+      }
+      // controle de escape correto
+      if (char === '\\' && !escaped) {
+        escaped = true;
+      } else {
+        escaped = false;
+      }
+      result += char;
+    }
+    return result;
+  }
+
   // FORMA COMPLICADA (GESTHOS TRAZ STRINGS EM UTF-8, COM ERROS DE CARACTERES).
   console.log('TEXTO RECEBIDO: ' + iconv.decode(Buffer.from(req.body), 'utf8'));
   let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
   let fixedstring = string.replace(/\n/g, "\\n"); // corrige eventuais quebras de linha que quebram o JSON ao ser parseado.
   let obj = JSON.parse(fixedstring);
   atendimentos = JSON.parse(obj);
-  
+
   // FORMA SIMPLIFICADA (SEM USAR BUFFER E CONVERSÕES PARA UTF 8).
   // let atendimentos = req.body;
-  
+
   objetos = [];
   if (atendimentos == [] || atendimentos == null || atendimentos == undefined || atendimentos == '') {
     res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: atendimentos });
@@ -2042,11 +2075,12 @@ app.post("/txt_assistencial", (req, res) => {
   res.send('SUCESSO');
   console.log(req.body);
   let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
-  let obj = JSON.parse(string);
+  let fixedstring = string.replace(/\n/g, "\\n"); // corrige eventuais quebras de linha que quebram o JSON ao ser parseado.
+  let obj = JSON.parse(fixedstring);
   arrayassistencial = [];
   assistenciais = JSON.parse(obj);
   // assistenciais = req.body;
-  
+
   if (assistenciais == '' || assistenciais == null || assistenciais == undefined || assistenciais == '') {
     res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
   } else {

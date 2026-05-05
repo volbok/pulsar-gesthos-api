@@ -1,7 +1,7 @@
 const axios = require("axios");
 
-let html = "https://pulsar-gesthos-api.up.railway.app/";
-// let html = "http://localhost:3333/";
+// let html = "https://pulsar-gesthos-api.up.railway.app/";
+let html = "http://localhost:3333/";
 
 const criandoJsonAtendimento = () => {
   console.log("ENVIADO ARRAY COM JSONS");
@@ -73,7 +73,8 @@ const criandoJsonAssistencial = () => {
           data: "01/03/2023",
           hora: "00:03:06",
           prontuario: "111",
-          atendimento: "111",
+          atendimento: "111"
+          ,
           grupo: "01 - GRUPO DADOS VITAIS E CONTROLES",
           item: "0102 - PAD",
           valor: "80",
@@ -92,6 +93,6 @@ const criandoJsonAssistencial = () => {
 
 //setInterval(() => {
 console.log('CRIANDO DADOS DE TESTE.');
-criandoJsonAtendimento();
+// criandoJsonAtendimento();
 criandoJsonAssistencial();
 //}, 2000);
