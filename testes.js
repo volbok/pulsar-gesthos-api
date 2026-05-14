@@ -49,50 +49,79 @@ const criandoJsonAtendimento = () => {
 };
 
 const criandoJsonAssistencial = () => {
-  console.log("ENVIADO ARRAY COM JSONS");
-  var obj = {
-    credenciais: {
-      empresa: "13.025.354/0001-32",
-      usuario: "AABBCCDD",
-      password: "AABBCCDD",
-    },
-    registro: [
-      {
-        documento: {
-          data: "01/03/2023",
-          hora: "00:03:06",
-          prontuario: "111",
-          atendimento: "111",
-          grupo: "01 - GRUPO DADOS VITAIS E CONTROLES",
-          item: "0101 - PAS",
-          valor: "120",
-        },
-      },
-      {
-        documento: {
-          data: "01/03/2023",
-          hora: "00:03:06",
-          prontuario: "111",
-          atendimento: "111"
-          ,
-          grupo: "01 - GRUPO DADOS VITAIS E CONTROLES",
-          item: "0102 - PAD",
-          valor: "80",
-        },
-      },
-    ],
-  };
+  function sanitizeBrokenJson(raw) {
+    let result = '';
+    let inString = false;
+    let escaped = false;
+    for (let i = 0; i < raw.length; i++) {
+      let char = raw[i];
+      // controla entrada/saída de string JSON
+      if (char === '"' && !escaped) {
+        inString = !inString;
+      }
+      if (inString) {
+        // corrige CR/LF reais
+        if (char === '\n') {
+          result += '\\n';
+          continue;
+        }
+        if (char === '\r') {
+          result += '\\r';
+          continue;
+        }
+        if (char === '\t') {
+          result += '\\t';
+          continue;
+        }
+        // remove outros control chars invisíveis
+        if (char.charCodeAt(0) < 32) {
+          continue;
+        }
+      }
+      // controle de escape
+      escaped = char === '\\' && !escaped;
+      result += char;
+    }
+    return result;
+  }
 
+  const fs = require('fs');
+  const raw = fs.readFileSync('./brokenjson.json', 'utf8');
+  try {
+    JSON.parse(raw);
+    console.log('JSON original válido');
+  } catch (e) {
+    console.log('JSON original INVÁLIDO');
+    console.log(e.message);
+  }
+
+  const sanitized = sanitizeBrokenJson(raw).replace(/,\s*([\]}])/g, '$1');
+
+  try {
+    const parsed = JSON.parse(sanitized);
+    console.log('JSON sanitizado válido');
+    console.log(JSON.stringify(parsed));
+  } catch (e) {
+    console.error('Ainda inválido');
+    console.error(e.message);
+  }
+
+  const obj = sanitized;
+  console.log(sanitized);
+
+  
   axios
-    .post(html + "txt_assistencial", obj)
+    .post(html + "txt_assistencial", JSON.stringify(sanitized))
     .then(() => {
-      console.log("ENVIADO! " + JSON.stringify(obj));
+      console.log("ENVIADO! " + JSON.stringify(sanitized));
     })
     .catch((err) => console.log(err));
+  
+
 };
 
 //setInterval(() => {
-console.log('CRIANDO DADOS DE TESTE.');
+// console.log('CRIANDO DADOS DE TESTE.');
 // criandoJsonAtendimento();
 criandoJsonAssistencial();
 //}, 2000);

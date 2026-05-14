@@ -2,6 +2,7 @@
 require("dotenv-safe").config();
 const jwt = require('jsonwebtoken');
 const moment = require("moment");
+const nodemailer = require("nodemailer");
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -1981,48 +1982,13 @@ app.post("/txt_atendimento", (req, res) => {
   res.send('SUCESSO');
   console.log(req.body);
 
-  // função para corrigir quebras de linha em JSON defeituoso:
-  function sanitizeBrokenJson(raw) {
-    let result = '';
-    let inString = false;
-    let escaped = false;
-
-    for (let i = 0; i < raw.length; i++) {
-      let char = raw[i];
-      // alterna estado de string
-      if (char === '"' && !escaped) {
-        inString = !inString;
-      }
-      if (inString) {
-        // corrige caracteres proibidos dentro de string
-        if (char === '\n') char = '\\n';
-        else if (char === '\r') char = '\\r';
-        else if (char === '\t') char = '\\t';
-        else if (char.charCodeAt(0) < 32) {
-          // remove outros control chars invisíveis
-          continue;
-        }
-      }
-      // controle de escape correto
-      if (char === '\\' && !escaped) {
-        escaped = true;
-      } else {
-        escaped = false;
-      }
-      result += char;
-    }
-    return result;
-  }
-
-  // FORMA COMPLICADA (GESTHOS TRAZ STRINGS EM UTF-8, COM ERROS DE CARACTERES).
   console.log('TEXTO RECEBIDO: ' + iconv.decode(Buffer.from(req.body), 'utf8'));
+
   let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
   let fixedstring = string.replace(/\n/g, "\\n"); // corrige eventuais quebras de linha que quebram o JSON ao ser parseado.
+
   let obj = JSON.parse(fixedstring);
   atendimentos = JSON.parse(obj);
-
-  // FORMA SIMPLIFICADA (SEM USAR BUFFER E CONVERSÕES PARA UTF 8).
-  // let atendimentos = req.body;
 
   objetos = [];
   if (atendimentos == [] || atendimentos == null || atendimentos == undefined || atendimentos == '') {
@@ -2068,32 +2034,126 @@ app.post("/txt_atendimento", (req, res) => {
     resposta.filter(item => item.hasOwnProperty("alta") == true).map(item => createObjAlta(item.alta));
     trataAtendimentos();
   }
-
 });
+
+function sanitizeBrokenJson(raw) {
+
+  let result = '';
+  let inString = false;
+  let escaped = false;
+
+  for (let i = 0; i < raw.length; i++) {
+
+    let char = raw[i];
+
+    // controla entrada/saída de string JSON
+    if (char === '"' && !escaped) {
+      inString = !inString;
+    }
+
+    if (inString) {
+
+      // corrige CR/LF reais
+      if (char === '\n') {
+        result += '\\n';
+        continue;
+      }
+
+      if (char === '\r') {
+        result += '\\r';
+        continue;
+      }
+
+      if (char === '\t') {
+        result += '\\t';
+        continue;
+      }
+
+      // remove outros control chars invisíveis
+      if (char.charCodeAt(0) < 32) {
+        continue;
+      }
+    }
+
+    // controle de escape
+    escaped = char === '\\' && !escaped;
+
+    result += char;
+  }
+
+
+  return result;
+
+
+}
+
+// e-mail sender.
+const emailSender = (json) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "contato@pulsarpep.com",
+      pass: "hhkk tyer gteq pukv",
+    },
+  });
+
+  transporter.sendMail({
+    from: 'contato@pulsarpep.com',
+    to: "rodrigocarvalholessa@gmail.com",
+    subject: 'JSON DEFEITUOSO RECEBIDO DO GESTHOS',
+    text: json,
+  })
+}
 
 app.post("/txt_assistencial", (req, res) => {
   res.send('SUCESSO');
   console.log(req.body);
-  let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
-  let fixedstring = string.replace(/\n/g, "\\n"); // corrige eventuais quebras de linha que quebram o JSON ao ser parseado.
-  let obj = JSON.parse(fixedstring);
-  arrayassistencial = [];
-  assistenciais = JSON.parse(obj);
-  // assistenciais = req.body;
 
-  if (assistenciais == '' || assistenciais == null || assistenciais == undefined || assistenciais == '') {
-    res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
-  } else {
-    console.log(assistenciais);
-    let dados_assistenciais = [];
-    dados_assistenciais = assistenciais.registro;
-    dados_assistenciais.map(item => arrayassistencial.push(item));
-    // atualizando banco de dados.
-    arrayassistencial.filter(item => item.hasOwnProperty('documento') == true).map(item => insertRegistroAssistencial(item.documento));
-    arrayassistencial.filter(item => item.hasOwnProperty('precaucao') == true).map(item => insertRegistroAssistencial(item.precaucao));
-    arrayassistencial.filter(item => item.hasOwnProperty('exame') == true).map(item => insertRegistroAssistencial(item.exame));
+  console.log('TEXTO RECEBIDO: ' + iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8'));
+
+  let string = iconv.decode(Buffer.from(JSON.stringify(req.body)), 'utf8');
+  console.log(string);
+
+  // checando se a string recebida pode ser convertida ou não em um JSON válido:
+  try {
+    JSON.parse(string);
+    console.log('JSON original válido');
+  } catch (e) {
+    console.log('JSON original INVÁLIDO');
+    console.log(e.message);
   }
 
+  // executando a função reparadora do JSON. 
+  const sanitized = sanitizeBrokenJson(string).replace(/,\s*([\]}])/g, '$1');
+
+  // verificando se o JSON "sanitizado" é parseável.
+  try {
+    const parsed = JSON.parse(sanitized);
+    emailSender(sanitized);
+    console.log('JSON sanitizado válido');
+    console.log(JSON.stringify(parsed));
+
+    let obj = parsed;
+
+    arrayassistencial = [];
+    assistenciais = JSON.parse(obj);
+
+    if (assistenciais == '' || assistenciais == null || assistenciais == undefined || assistenciais == '') {
+      res.json({ message: 'SEM DADOS ENVIADOS PELO BOT GESTHOS.', content: assistenciais });
+    } else {
+      console.log(assistenciais);
+      let dados_assistenciais = [];
+      dados_assistenciais = assistenciais.registro;
+      dados_assistenciais.map(item => arrayassistencial.push(item));
+      // atualizando banco de dados.
+      arrayassistencial.filter(item => item.hasOwnProperty('documento') == true).map(item => insertRegistroAssistencial(item.documento));
+      arrayassistencial.filter(item => item.hasOwnProperty('precaucao') == true).map(item => insertRegistroAssistencial(item.precaucao));
+      arrayassistencial.filter(item => item.hasOwnProperty('exame') == true).map(item => insertRegistroAssistencial(item.exame));
+    }
+  } catch (e) {
+    console.error('Ainda inválido');
+    console.error(e.message);
+  }
 });
 
 app.post("/echopulsar", (req, res) => {

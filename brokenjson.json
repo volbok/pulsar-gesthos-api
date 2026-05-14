@@ -1,0 +1,53 @@
+{
+    "credenciais": {
+        "empresa": "13.025.354/0001-32",
+        "usuario": "AABBCCDD",
+        "password": "AABBCCDD"
+    },
+    "registro": [
+        {
+            "documento": {
+                "data": "04/05/2026",
+                "hora": "15:29:13",
+                "prontuario": "373744",
+                "atendimento": "2216167",
+                "grupo": "01 - GRUPO DADOS VITAIS E CONTROLES",
+                "item": "0101 - PAS",
+                "valor": "90"
+            }
+        },
+        {
+            "documento": {
+                "data": "04/05/2026",
+                "hora": "03:38:24",
+                "prontuario": "400659",
+                "atendimento": "2232126",
+                "grupo": "08 - ANTIBIOTICOS, CULTURAS E EXAMES",
+                "item": "0893 - Outros Ex",
+                "valor": "-"
+            }
+        },
+        {
+            "documento": {
+                "data": "04/05/2026",
+                "hora": "15:29:13",
+                "prontuario": "373744",
+                "atendimento": "2216167",
+                "grupo": "08 - ANTIBIOTICOS, CULTURAS E EXAMES",
+                "item": "0801 - ANTIBIOTICOS NOME DO ANTIBIOTICO",
+                "valor": "CEFEPIME 1 G FRASCO AMPOLA - Qtde de Dias : 4 - Data de Início :  13/4/2026
+DOXICICLINA 100 MG - Qtde de Dias: 4 - Data de Início: 18 / 4 / 2026
+MEROPENEM 1G - Qtde de Dias: 3 - Data de Início: 20 / 4 / 2026
+MEROPENEM 500 MG FRASCO AMPOLA - Qtde de Dias: 10 - Data de Início: 22 / 4 / 2026
+MEROPENEM 500 MG FRASCO AMPOLA - Qtde de Dias : 4 - Data de Início : 30 / 4 / 2026
+MEROPENEM 500 MG FRASCO AMPOLA - Qtde de Dias : 2 - Data de Início : 3 / 5 / 2026
+PIPERACILINA + TAZOBACTAM 4,
+                5 G FRASCO AMPOLA - Qtde de Dias : 2 - Data de Início : 16 / 4 / 2026
+POLIMIXINA B 500.000 UI FRASCO AMPOLA - Qtde de Dias : 16 - Data de Início : 20 / 4 / 2026
+VANCOmicina 500 MG FRASCO AMPOLA - Qtde de Dias : 6 - Data de Início : 13 / 4 / 2026
+VANCOmicina 500 MG FRASCO AMPOLA - Qtde de Dias : 4 - Data de Início : 20 / 4 / 2026
+VANCOmicina 500 MG FRASCO AMPOLA - Qtde de Dias : 2 - Data de Início : 4 / 5 / 2026"
+            }
+        },
+    ]
+}
