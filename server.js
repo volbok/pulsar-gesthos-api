@@ -2089,14 +2089,14 @@ const emailSender = (json, status) => {
       from: 'contato@pulsarpep.com',
       to: "rodrigocarvalholessa@gmail.com",
       subject: 'PULSAR-GESTHOS: DADOS REGISTRADOS COM SUCESSO!',
-      text: 'O JSON enviado para a API Pulsar foi registrado com sucesso.',
+      text: 'O JSON enviado para a API Pulsar foi registrado com sucesso. \n' + json,
     });
   } else {
     transporter.sendMail({
       from: 'contato@pulsarpep.com',
       to: "rodrigocarvalholessa@gmail.com",
       subject: 'PULSAR-GESTHOS: ERRO!',
-      text: 'Não foi possível reparar o JSON enviado para a API Pulsar.',
+      text: 'Não foi possível reparar o JSON enviado para a API Pulsar. \n' + json,
     });
   }
 }
@@ -2148,7 +2148,7 @@ app.post("/txt_assistencial", (req, res) => {
     }
   } catch (e) {
     console.error('JSON ainda inválido.');
-    emailSenderFalha(sanitized, 'ERRO');
+    emailSender(sanitized, 'ERRO');
     console.error(e.message);
   }
 });
