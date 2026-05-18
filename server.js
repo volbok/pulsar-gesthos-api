@@ -2084,7 +2084,7 @@ const emailSender = (json, status) => {
     },
   });
 
-  if (sucesso == 'SUCESSO') {
+  if (status == 'SUCESSO') {
     transporter.sendMail({
       from: 'contato@pulsarpep.com',
       to: "rodrigocarvalholessa@gmail.com",
