@@ -2043,52 +2043,39 @@ function sanitizeBrokenJson(raw) {
   let escaped = false;
 
   for (let i = 0; i < raw.length; i++) {
-
     let char = raw[i];
-
     // controla entrada/saída de string JSON
     if (char === '"' && !escaped) {
       inString = !inString;
     }
-
     if (inString) {
-
       // corrige CR/LF reais
       if (char === '\n') {
         result += '\\n';
         continue;
       }
-
       if (char === '\r') {
         result += '\\r';
         continue;
       }
-
       if (char === '\t') {
         result += '\\t';
         continue;
       }
-
       // remove outros control chars invisíveis
       if (char.charCodeAt(0) < 32) {
         continue;
       }
     }
-
     // controle de escape
     escaped = char === '\\' && !escaped;
-
     result += char;
   }
-
-
   return result;
-
-
 }
 
 // e-mail sender.
-const emailSender = (json) => {
+const emailSender = (json, status) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -2097,12 +2084,21 @@ const emailSender = (json) => {
     },
   });
 
-  transporter.sendMail({
-    from: 'contato@pulsarpep.com',
-    to: "rodrigocarvalholessa@gmail.com",
-    subject: 'JSON DEFEITUOSO RECEBIDO DO GESTHOS',
-    text: json,
-  })
+  if (sucesso == 'SUCESSO') {
+    transporter.sendMail({
+      from: 'contato@pulsarpep.com',
+      to: "rodrigocarvalholessa@gmail.com",
+      subject: 'PULSAR-GESTHOS: DADOS REGISTRADOS COM SUCESSO!',
+      text: 'O JSON enviado para a API Pulsar foi registrado com sucesso.',
+    });
+  } else {
+    transporter.sendMail({
+      from: 'contato@pulsarpep.com',
+      to: "rodrigocarvalholessa@gmail.com",
+      subject: 'PULSAR-GESTHOS: ERRO!',
+      text: 'Não foi possível reparar o JSON enviado para a API Pulsar.',
+    });
+  }
 }
 
 app.post("/txt_assistencial", (req, res) => {
@@ -2129,8 +2125,8 @@ app.post("/txt_assistencial", (req, res) => {
   // verificando se o JSON "sanitizado" é parseável.
   try {
     const parsed = JSON.parse(sanitized);
-    emailSender(sanitized);
-    console.log('JSON sanitizado válido');
+    console.log('JSON sanitizado é válido.');
+    emailSender(sanitized, 'SUCESSO');
     console.log(JSON.stringify(parsed));
 
     let obj = parsed;
@@ -2151,7 +2147,8 @@ app.post("/txt_assistencial", (req, res) => {
       arrayassistencial.filter(item => item.hasOwnProperty('exame') == true).map(item => insertRegistroAssistencial(item.exame));
     }
   } catch (e) {
-    console.error('Ainda inválido');
+    console.error('JSON ainda inválido.');
+    emailSenderFalha(sanitized, 'ERRO');
     console.error(e.message);
   }
 });
